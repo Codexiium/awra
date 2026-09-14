@@ -1,22 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { X, ChevronDown } from "lucide-react";
-import type { ProductCategory, ProductCollection } from "@/app/types";
+import { X } from "lucide-react";
 
 interface MobileNavDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  categories: ProductCategory[];
-  collections: ProductCollection[];
 }
 
-export default function MobileNavDrawer({ isOpen, onClose, categories, collections }: MobileNavDrawerProps) {
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
-  const [collectionsOpen, setCollectionsOpen] = useState(false);
-
+export default function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
   if (!isOpen) return null;
 
   return (
@@ -47,64 +40,12 @@ export default function MobileNavDrawer({ isOpen, onClose, categories, collectio
             </button>
           </div>
 
-          {/* Nav Items Accordion */}
+          {/* Nav Items */}
           <nav className="space-y-4 font-mono text-sm uppercase tracking-wider text-zinc-300">
             <div>
               <Link href="/shop" onClick={onClose} className="block py-2 hover:text-white">
                 SHOP ALL
               </Link>
-            </div>
-
-            {/* Categories Accordion */}
-            <div className="border-t border-white/5 pt-3">
-              <button
-                type="button"
-                onClick={() => setCategoriesOpen(!categoriesOpen)}
-                className="w-full flex items-center justify-between py-2 text-left hover:text-white"
-              >
-                <span>CATEGORIES</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
-              </button>
-              {categoriesOpen && (
-                <div className="pl-4 py-2 space-y-2 text-xs font-sans normal-case text-zinc-400">
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.slug}
-                      href={`/category/${cat.slug}`}
-                      onClick={onClose}
-                      className="block py-1 hover:text-white"
-                    >
-                      {cat.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Collections Accordion */}
-            <div className="border-t border-white/5 pt-3">
-              <button
-                type="button"
-                onClick={() => setCollectionsOpen(!collectionsOpen)}
-                className="w-full flex items-center justify-between py-2 text-left hover:text-white"
-              >
-                <span>COLLECTIONS</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${collectionsOpen ? "rotate-180" : ""}`} />
-              </button>
-              {collectionsOpen && (
-                <div className="pl-4 py-2 space-y-2 text-xs font-sans normal-case text-zinc-400">
-                  {collections.map((col) => (
-                    <Link
-                      key={col.slug}
-                      href={`/collections/${col.slug}`}
-                      onClick={onClose}
-                      className="block py-1 hover:text-white"
-                    >
-                      {col.title}
-                    </Link>
-                  ))}
-                </div>
-              )}
             </div>
 
             <div className="border-t border-white/5 pt-3">

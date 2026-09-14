@@ -42,8 +42,6 @@ export interface Product {
   price: number;
   compareAtPrice?: number;
   description: string;
-  category: string;
-  collection: string;
   images: ProductImages;
   sizes: ProductSizeOption[];
   colors: ProductColorOption[];
@@ -52,20 +50,6 @@ export interface Product {
   rating: number;
   reviewCount: number;
   details: ProductDetails;
-}
-
-export interface ProductCollection {
-  slug: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  itemCount: number;
-}
-
-export interface ProductCategory {
-  slug: string;
-  name: string;
-  count: number;
 }
 
 // Cart

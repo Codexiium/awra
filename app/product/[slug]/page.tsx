@@ -10,7 +10,7 @@ export default async function ProductDetailPage(props: PageProps<"/product/[slug
     notFound();
   }
 
-  const relatedProducts = await getRelatedProducts(product.categorySlug, slug, 4);
+  const relatedProducts = await getRelatedProducts(slug, 4);
 
   return <ProductDetailClient product={product} relatedProducts={relatedProducts} />;
 }

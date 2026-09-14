@@ -1,7 +1,7 @@
 // One-off local seed script. Run with: bun run scripts/seed.ts
 // Uses SUPABASE_SECRET_KEY (bypasses RLS) — never import this file from app code.
 import { createClient } from "@supabase/supabase-js";
-import { mockProducts, mockCollections, mockCategories } from "../app/data/mockProducts";
+import { mockProducts } from "../app/data/mockProducts";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const secretKey = process.env.SUPABASE_SECRET_KEY;
@@ -11,47 +11,9 @@ if (!url || !secretKey) {
 
 const supabase = createClient(url, secretKey);
 
-function slugifyCategory(name: string) {
-  return name.toLowerCase().replace(/\s+/g, "-");
-}
-
 async function main() {
-  console.log("Seeding categories...");
-  const categoryRows = mockCategories.map((c, i) => ({
-    slug: c.slug,
-    name: c.name,
-    sort_order: i
-  }));
-  const { data: categories, error: catErr } = await supabase
-    .from("categories")
-    .insert(categoryRows)
-    .select("id, slug");
-  if (catErr) throw catErr;
-  const categoryBySlug = new Map(categories!.map((c) => [c.slug, c.id]));
-
-  console.log("Seeding collections...");
-  const collectionRows = mockCollections.map((c, i) => ({
-    slug: c.slug,
-    title: c.title,
-    subtitle: c.subtitle,
-    description: c.description,
-    sort_order: i
-  }));
-  const { data: collections, error: colErr } = await supabase
-    .from("collections")
-    .insert(collectionRows)
-    .select("id, slug");
-  if (colErr) throw colErr;
-  const collectionBySlug = new Map(collections!.map((c) => [c.slug, c.id]));
-
   console.log(`Seeding ${mockProducts.length} products...`);
   for (const p of mockProducts) {
-    const categorySlug = slugifyCategory(p.category);
-    const collectionSlug = p.collection.toLowerCase().replace(/\s+/g, "-");
-    const categoryId = categoryBySlug.get(categorySlug);
-    if (!categoryId) throw new Error(`No category row for slug "${categorySlug}" (product ${p.slug})`);
-    const collectionId = collectionBySlug.get(collectionSlug); // optional FK, may be undefined
-
     const { data: productRow, error: prodErr } = await supabase
       .from("products")
       .insert({
@@ -60,8 +22,6 @@ async function main() {
         price: p.price,
         compare_at_price: p.compareAtPrice ?? null,
         description: p.description,
-        category_id: categoryId,
-        collection_id: collectionId ?? null,
         availability: p.availability,
         badges: p.badges,
         rating: p.rating,

@@ -3,17 +3,14 @@ import { ArrowRight, ChevronRight } from "lucide-react";
 import ProductImage from "./components/ui/ProductImage";
 import ProductCard from "./components/ui/ProductCard";
 import HeroEntrance from "./components/home/HeroEntrance";
-import { getProducts, getCategories } from "@/lib/catalog";
+import { getProducts } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 
 export default async function Home() {
-  const [allProducts, categories] = await Promise.all([
-    getProducts({ sort: "newest" }),
-    getCategories()
-  ]);
+  const allProducts = await getProducts({ sort: "newest" });
 
-  const featuredProducts = allProducts.slice(0, 4);
-  const bestSellerProducts = allProducts.slice(4, 8);
+  const featuredProducts = allProducts;
+  const bestSellerProducts = [...allProducts].sort((a, b) => b.reviewCount - a.reviewCount);
 
   return (
     <div className="w-full bg-[#080808]">
@@ -34,22 +31,28 @@ export default async function Home() {
               <span>DROP 04 — WINTER ARCHIVE 2026</span>
             </div>
 
-            <h1 className="font-gothic text-5xl sm:text-7xl lg:text-8xl tracking-tight text-white leading-[0.9] mb-6">
-              {/* Slogan*/}
+            <h1 className="font-gothic text-4xl sm:text-6xl lg:text-7xl tracking-tight text-white leading-[1.05] mb-6">
+              ONE BRAND.
               <br />
-              <span className="text-zinc-400 italic font-cinzel">{/* Slogan */}</span>
+              <span className="text-zinc-400 italic font-cinzel">EVERY SUBCULTURE</span>
             </h1>
 
-            <p className="text-sm sm:text-base text-zinc-400 font-sans max-w-xl leading-relaxed mb-8">
-              Floor-length technical canvas trench coats, 650 GSM double-walled spiky heavy hoodies, and hand-antiqued sterling silver hardware. Engineered without compromise.
+            <p className="text-sm sm:text-base text-zinc-400 font-sans max-w-xl leading-relaxed mb-2">
+              From oversized street staples to gothic edge
+            </p>
+            <p className="text-sm sm:text-base text-zinc-400 font-sans max-w-xl leading-relaxed mb-2">
+              Premium fabrics | Unfiltered style
+            </p>
+            <p className="text-sm sm:text-base text-zinc-300 font-sans max-w-xl leading-relaxed mb-8">
+              📍 Made to stand out.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
               <Link
-                href="/collections/nocturnal-disruption"
+                href="/shop"
                 className="clay-button-primary px-8 py-4 text-xs font-mono uppercase tracking-widest flex items-center justify-center gap-3 w-full sm:w-auto"
               >
-                <span>001</span>
+                <span>🔗 Explore the catalog</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
@@ -59,6 +62,13 @@ export default async function Home() {
                 EXPLORE LOOKBOOK
               </Link>
             </div>
+
+            <a
+              href="tel:7439104842"
+              className="mt-6 text-xs font-mono text-zinc-400 hover:text-white transition-colors inline-flex items-center gap-1.5"
+            >
+              📞 CALL / WHATSAPP: +91 74391 04842
+            </a>
           </HeroEntrance>
 
           {/* Right Hero Image Card (PRD Section 3 Placeholder) */}
@@ -66,7 +76,7 @@ export default async function Home() {
             <div className="relative p-2 bg-[#121212] border border-white/15 shadow-2xl">
               <ProductImage
                 src={null}
-                alt="Nocturnal Disruption Campaign Hero"
+                alt="ARWA Campaign Hero"
                 aspectRatio="3:4"
                 gothicSymbol="🕇"
                 className="w-full"
@@ -76,9 +86,11 @@ export default async function Home() {
                   FEATURED GARMENT
                 </p>
                 <p className="text-sm font-semibold text-zinc-100 font-sans">
-                  CATHEDRAL OVERSIZED TRENCH
+                  {allProducts[0]?.name ?? "001"}
                 </p>
-                <p className="text-xs font-mono text-zinc-400 mt-1">{formatPrice(680)} · LIMITED 50 PIECES</p>
+                <p className="text-xs font-mono text-zinc-400 mt-1">
+                  {formatPrice(allProducts[0]?.price ?? 0)} · LIMITED PIECES
+                </p>
               </div>
             </div>
           </div>
@@ -134,97 +146,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 4. VISUAL CATEGORY TILES (PRD 8.1 #6) */}
-      <section className="py-24 border-b border-white/10 bg-[#060606]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-xl mx-auto mb-16">
-            <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest block mb-2">
-              DISCOVER BY CATEGORY
-            </span>
-            <h2 className="font-gothic text-4xl text-white tracking-widest">
-              ARCHIVAL TAXONOMY
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.slice(0, 4).map((cat, idx) => (
-              <Link
-                key={cat.slug}
-                href={`/category/${cat.slug}`}
-                className="group relative block aspect-[3/4] bg-[#0f0f0f] border border-white/10 overflow-hidden hover:border-white/30 transition-all"
-              >
-                <ProductImage
-                  src={null}
-                  alt={cat.name}
-                  aspectRatio="3:4"
-                  gothicSymbol={idx % 2 === 0 ? "✦" : "🕇"}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-6 flex flex-col justify-end">
-                  <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest mb-1">
-                    {cat.count} ITEMS
-                  </span>
-                  <h3 className="font-gothic text-2xl text-white tracking-wide group-hover:translate-x-1 transition-transform">
-                    {cat.name}
-                  </h3>
-                  <span className="text-xs font-mono text-zinc-400 mt-2 flex items-center gap-1 group-hover:text-white">
-                    EXPLORE <ChevronRight className="w-3.5 h-3.5" />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5. EDITORIAL CAMPAIGN SECTION (PRD 8.1 #7) */}
-      <section className="py-24 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-6 order-2 lg:order-1 space-y-6">
-            <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest block">
-              EDITORIAL CAMPAIGN · LOOK 02
-            </span>
-            <h2 className="font-gothic text-4xl sm:text-5xl text-white leading-tight">
-              HEAVYWEIGHT COTTON &amp; SPIKY HARDWARE
-            </h2>
-            <p className="text-sm text-zinc-400 font-sans leading-relaxed">
-              Designed in NYC and constructed in Europe, the Nocturnal Heavy Hoodie features 650 GSM French Terry cotton with spiky metal drawstrings. Layered over wide-leg gabardine pleat trousers.
-            </p>
-
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10 font-mono text-xs text-zinc-300">
-              <div>
-                <span className="text-zinc-500 block">WEIGHT</span>
-                <span className="font-bold">650 GSM ORGANIC COTTON</span>
-              </div>
-              <div>
-                <span className="text-zinc-500 block">HARDWARE</span>
-                <span className="font-bold">925 STERLING AG FINISH</span>
-              </div>
-            </div>
-
-            <div className="pt-4">
-              <Link
-                href="/product/nocturnal-spiky-heavy-hoodie"
-                className="clay-button-primary px-8 py-3.5 text-xs font-mono uppercase tracking-widest inline-flex items-center gap-2"
-              >
-                <span>VIEW GARMENT DETAILS</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-
-          <div className="lg:col-span-6 order-1 lg:order-2">
-            <div className="p-2 bg-[#121212] border border-white/15">
-              <ProductImage
-                src={null}
-                alt="Editorial Campaign Look"
-                aspectRatio="4:5"
-                gothicSymbol="✦"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* 6. BEST SELLERS GRID (PRD 8.1 #9) */}
       <section className="py-24 border-b border-white/10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-xl mx-auto mb-16">
@@ -253,7 +174,7 @@ export default async function Home() {
             COMPLIMENTARY EXPRESS SHIPPING OVER {formatPrice(250)}
           </h3>
           <p className="text-xs text-zinc-400 font-sans max-w-lg mx-auto mb-6">
-            All orders are shipped via express DHL air freight in custom matte black collector box packaging with metallic seal certificate.
+            All orders are shipped via express air freight.
           </p>
           <Link
             href="/shipping-delivery"

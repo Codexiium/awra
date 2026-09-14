@@ -32,7 +32,7 @@ export default function LookbookPage() {
           DROP 04 LOOKBOOK
         </h1>
         <p className="text-xs text-zinc-400 font-mono mt-2">
-          PHOTOGRAPHED IN PARIS &amp; NEW YORK ARCHIVES
+          ARCHIVAL CAMPAIGN IMAGERY
         </p>
       </div>
 

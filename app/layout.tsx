@@ -8,7 +8,7 @@ import CartDrawer from "./components/layout/CartDrawer";
 import SearchOverlay from "./components/layout/SearchOverlay";
 import Toast from "./components/ui/Toast";
 import CartWishlistSync from "./components/CartWishlistSync";
-import { getCategories, getCollections, getAllProductsForNav } from "@/lib/catalog";
+import { getAllProductsForNav } from "@/lib/catalog";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -18,7 +18,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "ARWA — Premium Dark Gothic High-Fashion E-Commerce",
   description: "Official ARWA dark streetwear catalog featuring floor-length trenches, heavy distressed hoodies, spiky archival metal hardware, and cyber gothic silhouettes.",
-  keywords: ["ARWA", "Dark Streetwear", "Gothic Fashion", "High-Fashion E-Commerce", "Nocturnal Disruption", "Sterling Silver"],
+  keywords: ["ARWA", "Dark Streetwear", "Gothic Fashion", "High-Fashion E-Commerce", "Sterling Silver"],
   openGraph: {
     title: "ARWA — Dark Gothic High-Fashion E-Commerce",
     description: "Architectural heavyweight silhouettes and archival silver hardware.",
@@ -27,11 +27,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const [categories, collections, navProducts] = await Promise.all([
-    getCategories(),
-    getCollections(),
-    getAllProductsForNav()
-  ]);
+  const navProducts = await getAllProductsForNav();
 
   return (
     <html
@@ -43,7 +39,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <AnnouncementBar />
 
         {/* Global Header Navigation */}
-        <Header categories={categories} collections={collections} />
+        <Header />
 
         {/* Main Content Area */}
         <main className="flex-1 w-full">{children}</main>

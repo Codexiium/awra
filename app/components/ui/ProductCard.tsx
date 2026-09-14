@@ -112,12 +112,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Product Content Details */}
       <div className="p-4 flex flex-col flex-1 justify-between bg-[#0e0e0e]">
         <div>
-          {/* Collection tag */}
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
-              {product.category}
-            </span>
-            {/* Color swatches */}
+          {/* Color swatches */}
+          <div className="flex items-center justify-end mb-1">
             <div className="flex items-center gap-1">
               {product.colors?.map((col, idx) => (
                 <span

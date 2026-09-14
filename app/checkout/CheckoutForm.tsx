@@ -238,7 +238,7 @@ export default function CheckoutForm({
                 <div className="flex items-center gap-3">
                   <input type="radio" name="deliveryOption" value="express" checked readOnly className="accent-white" />
                   <div>
-                    <span className="font-bold text-white block">EXPRESS AIR FREIGHT (DHL)</span>
+                    <span className="font-bold text-white block">EXPRESS AIR FREIGHT</span>
                     <span className="text-[10px] text-zinc-400">2–3 BUSINESS DAYS WITH TRACKING</span>
                   </div>
                 </div>

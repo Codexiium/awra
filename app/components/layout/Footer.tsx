@@ -50,8 +50,6 @@ export default function Footer() {
             <div className="flex items-center gap-4 text-xs font-mono tracking-widest text-zinc-500 uppercase">
               <span>EST. 2024</span>
               <span>·</span>
-              <span>PARIS / NEW YORK</span>
-              <span>·</span>
               <span>LIMITED DROPS ONLY</span>
             </div>
           </div>
@@ -103,54 +101,29 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/category/outerwear" className="hover:text-white transition-colors">
-                  Cathedral Outerwear
+                <Link href="/shop/new-arrivals" className="hover:text-white transition-colors">
+                  New Arrivals
                 </Link>
               </li>
               <li>
-                <Link href="/category/hoodies" className="hover:text-white transition-colors">
-                  Heavy Hoodies
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/bottoms" className="hover:text-white transition-colors">
-                  Archival Cargos
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/footwear" className="hover:text-white transition-colors">
-                  Platform Footwear
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/accessories" className="hover:text-white transition-colors">
-                  Sterling Silver & Gear
+                <Link href="/shop/best-sellers" className="hover:text-white transition-colors">
+                  Best Sellers
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h5 className="font-mono text-zinc-200 uppercase tracking-widest mb-4">COLLECTIONS</h5>
+            <h5 className="font-mono text-zinc-200 uppercase tracking-widest mb-4">CONTACT</h5>
             <ul className="space-y-2.5 font-sans">
               <li>
-                <Link href="/collections/nocturnal-disruption" className="hover:text-white transition-colors">
-                  Drop 04: Nocturnal Disruption
-                </Link>
+                <a href="tel:7439104842" className="hover:text-white transition-colors">
+                  +91 74391 04842
+                </a>
               </li>
               <li>
-                <Link href="/collections/cyber-gothic" className="hover:text-white transition-colors">
-                  Cyber Gothic Series
-                </Link>
-              </li>
-              <li>
-                <Link href="/collections/archival-metal" className="hover:text-white transition-colors">
-                  Archival Metal Hardware
-                </Link>
-              </li>
-              <li>
-                <Link href="/collections/monochrome-studio" className="hover:text-white transition-colors">
-                  Monochrome Studio
+                <Link href="/contact" className="hover:text-white transition-colors">
+                  Concierge & Inquiries
                 </Link>
               </li>
             </ul>

@@ -9,17 +9,10 @@ import { useWishlistStore } from "@/app/store/useWishlistStore";
 import { useUser } from "@/lib/supabase/useUser";
 import { useSearchStore } from "@/app/store/useSearchStore";
 import MobileNavDrawer from "./MobileNavDrawer";
-import type { ProductCategory, ProductCollection } from "@/app/types";
 
-interface HeaderProps {
-  categories: ProductCategory[];
-  collections: ProductCollection[];
-}
-
-export default function Header({ categories, collections }: HeaderProps) {
+export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [shopMegaOpen, setShopMegaOpen] = useState(false);
 
   const { cart, openCart } = useCartStore();
   const { wishlist } = useWishlistStore();
@@ -79,65 +72,12 @@ export default function Header({ categories, collections }: HeaderProps) {
 
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center gap-8 text-xs font-mono tracking-widest uppercase text-zinc-300">
-              <div
-                className="relative py-2"
-                onMouseEnter={() => setShopMegaOpen(true)}
-                onMouseLeave={() => setShopMegaOpen(false)}
-              >
-                <Link
-                  href="/shop"
-                  className="hover:text-white transition-colors py-2 flex items-center gap-1"
-                >
-                  SHOP
-                </Link>
-
-                {/* Shop Mega Menu Dropdown */}
-                {shopMegaOpen && (
-                  <div className="absolute top-full left-0 w-[480px] bg-[#0c0c0c] border border-white/15 p-6 shadow-2xl z-50 grid grid-cols-2 gap-6 animate-fade-in backdrop-blur-xl">
-                    <div>
-                      <h4 className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-3 border-b border-white/10 pb-1">
-                        Categories
-                      </h4>
-                      <ul className="space-y-2.5 text-xs text-zinc-300">
-                        {categories.map((cat) => (
-                          <li key={cat.slug}>
-                            <Link
-                              href={`/category/${cat.slug}`}
-                              className="hover:text-white flex items-center justify-between"
-                            >
-                              <span>{cat.name}</span>
-                              <span className="text-[10px] text-zinc-600 font-mono">({cat.count})</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <h4 className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-3 border-b border-white/10 pb-1">
-                        Featured Collections
-                      </h4>
-                      <ul className="space-y-2.5 text-xs text-zinc-300">
-                        {collections.map((col) => (
-                          <li key={col.slug}>
-                            <Link href={`/collections/${col.slug}`} className="hover:text-white block">
-                              <span className="font-semibold">{col.title}</span>
-                              <span className="block text-[10px] text-zinc-500 lowercase">{col.subtitle}</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Link href="/shop" className="hover:text-white transition-colors">
+                SHOP
+              </Link>
 
               <Link href="/shop/new-arrivals" className="hover:text-white transition-colors">
                 NEW ARRIVALS
-              </Link>
-
-              <Link href="/collections" className="hover:text-white transition-colors">
-                COLLECTIONS
               </Link>
 
               <Link href="/lookbook" className="hover:text-white transition-colors">
@@ -205,12 +145,7 @@ export default function Header({ categories, collections }: HeaderProps) {
       </header>
 
       {/* Mobile Drawer Navigation */}
-      <MobileNavDrawer
-        isOpen={mobileNavOpen}
-        onClose={() => setMobileNavOpen(false)}
-        categories={categories}
-        collections={collections}
-      />
+      <MobileNavDrawer isOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
     </>
   );
 }

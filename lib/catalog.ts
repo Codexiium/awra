@@ -1,11 +1,9 @@
 import { createClient } from "./supabase/server";
-import type { AspectRatio, Product, ProductCategory, ProductCollection } from "@/app/types";
+import type { AspectRatio, Product } from "@/app/types";
 
 const PRODUCT_SELECT = `
   id, slug, name, price, compare_at_price, description, availability, badges,
   rating, review_count, material, fit, care,
-  categories!inner ( name, slug ),
-  collections ( title, slug ),
   product_images ( role, storage_path, alt, aspect_ratio, sort_order ),
   product_variants ( size, color_name, color_hex, available )
 `;
@@ -39,8 +37,6 @@ interface ProductRow {
   material: string;
   fit: string;
   care: string;
-  categories: { name: string; slug: string } | null;
-  collections: { title: string; slug: string } | null;
   product_images: ProductImageRow[];
   product_variants: ProductVariantRow[];
 }
@@ -78,8 +74,6 @@ export function mapProductRow(row: ProductRow): Product {
     price: Number(row.price),
     compareAtPrice: row.compare_at_price != null ? Number(row.compare_at_price) : undefined,
     description: row.description,
-    category: row.categories?.name ?? "",
-    collection: row.collections?.title ?? "",
     images: {
       primary: mapImage(primary),
       secondary: mapImage(secondary),
@@ -96,8 +90,6 @@ export function mapProductRow(row: ProductRow): Product {
 }
 
 export interface ShopFilters {
-  categorySlug?: string;
-  collectionSlug?: string;
   size?: string;
   color?: string;
   sort?: "newest" | "price-low" | "price-high" | "best-selling" | "alphabetical";
@@ -108,20 +100,6 @@ export async function getProducts(filters: ShopFilters = {}): Promise<Product[]>
   const supabase = await createClient();
 
   let query = supabase.from("products").select(PRODUCT_SELECT);
-
-  if (filters.categorySlug) {
-    query = query.eq("categories.slug", filters.categorySlug);
-  }
-
-  if (filters.collectionSlug) {
-    const { data: collection } = await supabase
-      .from("collections")
-      .select("id")
-      .eq("slug", filters.collectionSlug)
-      .maybeSingle();
-    if (!collection) return [];
-    query = query.eq("collection_id", collection.id);
-  }
 
   // Size/color filters resolve matching product ids from product_variants first,
   // rather than an inner-joined embed, so the product_variants array returned for
@@ -162,20 +140,18 @@ export async function getProducts(filters: ShopFilters = {}): Promise<Product[]>
   return (data ?? []).map(mapProductRow);
 }
 
-export async function getProductBySlug(slug: string): Promise<(Product & { categorySlug: string }) | null> {
+export async function getProductBySlug(slug: string): Promise<Product | null> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("products").select(PRODUCT_SELECT).eq("slug", slug).maybeSingle<ProductRow>();
   if (error) throw error;
-  if (!data) return null;
-  return { ...mapProductRow(data), categorySlug: data.categories?.slug ?? "" };
+  return data ? mapProductRow(data) : null;
 }
 
-export async function getRelatedProducts(categorySlug: string, excludeSlug: string, limit = 4): Promise<Product[]> {
+export async function getRelatedProducts(excludeSlug: string, limit = 4): Promise<Product[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("products")
     .select(PRODUCT_SELECT)
-    .eq("categories.slug", categorySlug)
     .neq("slug", excludeSlug)
     .limit(limit)
     .returns<ProductRow[]>();
@@ -188,37 +164,11 @@ export async function searchProducts(query: string): Promise<Product[]> {
   const supabase = await createClient();
   const term = `%${query.trim()}%`;
 
-  // PostgREST's or() combinator only filters the top-level resource's own columns,
-  // not embedded-resource columns, so category/collection name matches are resolved
-  // as separate id lookups rather than a single combined filter.
-  const [{ data: directMatches }, { data: matchingCategories }, { data: matchingCollections }] = await Promise.all([
-    supabase.from("products").select("id").or(`name.ilike.${term},description.ilike.${term}`),
-    supabase.from("categories").select("id").ilike("name", term),
-    supabase.from("collections").select("id").ilike("title", term)
-  ]);
-
-  const categoryIds = (matchingCategories ?? []).map((c) => c.id);
-  const collectionIds = (matchingCollections ?? []).map((c) => c.id);
-
-  const [categoryMatches, collectionMatches] = await Promise.all([
-    categoryIds.length > 0
-      ? supabase.from("products").select("id").in("category_id", categoryIds)
-      : Promise.resolve({ data: [] as { id: number }[] }),
-    collectionIds.length > 0
-      ? supabase.from("products").select("id").in("collection_id", collectionIds)
-      : Promise.resolve({ data: [] as { id: number }[] })
-  ]);
-
-  const ids = [
-    ...new Set([
-      ...(directMatches ?? []).map((p) => p.id as number),
-      ...(categoryMatches.data ?? []).map((p) => p.id as number),
-      ...(collectionMatches.data ?? []).map((p) => p.id as number)
-    ])
-  ];
-  if (ids.length === 0) return [];
-
-  const { data, error } = await supabase.from("products").select(PRODUCT_SELECT).in("id", ids).returns<ProductRow[]>();
+  const { data, error } = await supabase
+    .from("products")
+    .select(PRODUCT_SELECT)
+    .or(`name.ilike.${term},description.ilike.${term}`)
+    .returns<ProductRow[]>();
   if (error) throw error;
   return (data ?? []).map(mapProductRow);
 }
@@ -236,66 +186,6 @@ export async function getAllProductsForNav(): Promise<Product[]> {
   const { data, error } = await supabase.from("products").select(PRODUCT_SELECT).returns<ProductRow[]>();
   if (error) throw error;
   return (data ?? []).map(mapProductRow);
-}
-
-export async function getCategories(): Promise<ProductCategory[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("categories")
-    .select("slug, name, products(count)")
-    .order("sort_order");
-  if (error) throw error;
-  return (data ?? []).map((c) => ({
-    slug: c.slug,
-    name: c.name,
-    count: (c.products as { count: number }[])?.[0]?.count ?? 0
-  }));
-}
-
-export async function getCategoryBySlug(slug: string): Promise<ProductCategory | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("categories")
-    .select("slug, name, products(count)")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (error) throw error;
-  if (!data) return null;
-  return { slug: data.slug, name: data.name, count: (data.products as { count: number }[])?.[0]?.count ?? 0 };
-}
-
-export async function getCollections(): Promise<ProductCollection[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("collections")
-    .select("slug, title, subtitle, description, products(count)")
-    .order("sort_order");
-  if (error) throw error;
-  return (data ?? []).map((c) => ({
-    slug: c.slug,
-    title: c.title,
-    subtitle: c.subtitle,
-    description: c.description,
-    itemCount: (c.products as { count: number }[])?.[0]?.count ?? 0
-  }));
-}
-
-export async function getCollectionBySlug(slug: string): Promise<ProductCollection | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("collections")
-    .select("slug, title, subtitle, description, products(count)")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (error) throw error;
-  if (!data) return null;
-  return {
-    slug: data.slug,
-    title: data.title,
-    subtitle: data.subtitle,
-    description: data.description,
-    itemCount: (data.products as { count: number }[])?.[0]?.count ?? 0
-  };
 }
 
 export async function getDistinctSizesAndColors(): Promise<{ sizes: string[]; colors: string[] }> {

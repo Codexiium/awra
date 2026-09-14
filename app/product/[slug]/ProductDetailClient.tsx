@@ -15,7 +15,7 @@ import type { Product, ProductImageAsset } from "../../types";
 type SpecTab = "description" | "details" | "shipping" | "reviews";
 
 interface ProductDetailClientProps {
-  product: Product & { categorySlug: string };
+  product: Product;
   relatedProducts: Product[];
 }
 
@@ -67,10 +67,6 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         <span>/</span>
         <Link href="/shop" className="hover:text-white transition-colors">SHOP</Link>
         <span>/</span>
-        <Link href={`/category/${product.categorySlug}`} className="hover:text-white transition-colors">
-          {product.category}
-        </Link>
-        <span>/</span>
         <span className="text-zinc-200 line-clamp-1">{product.name}</span>
       </nav>
 
@@ -113,9 +109,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         {/* Right Product Info Panel (PRD 11.3) */}
         <div className="lg:col-span-5 flex flex-col justify-between space-y-8">
           <div>
-            {/* Collection tag & Rating */}
-            <div className="flex items-center justify-between text-xs font-mono text-zinc-500 mb-2">
-              <span className="uppercase tracking-widest">{product.collection}</span>
+            {/* Rating */}
+            <div className="flex items-center justify-end text-xs font-mono text-zinc-500 mb-2">
               <div className="flex items-center gap-1 text-zinc-300">
                 <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 <span>{product.rating}</span>
@@ -302,7 +297,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
           {activeTab === "shipping" && (
             <div className="space-y-3 font-mono text-xs text-zinc-300">
-              <p>All orders are dispatched within 24 hours from our Paris warehouse.</p>
+              <p>All orders are dispatched within 24 hours.</p>
               <p>Express Air Freight: 2–4 Business Days ({formatPrice(25)} or Free over {formatPrice(250)}).</p>
               <p>Returns: 30-day complimentary return window with pre-paid return labels included.</p>
             </div>
