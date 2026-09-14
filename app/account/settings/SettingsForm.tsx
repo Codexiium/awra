@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 import { Check } from "lucide-react";
+import { updateProfile, type UpdateProfileState } from "@/lib/account/actions";
 
 interface SettingsFormProps {
   initialName: string;
@@ -9,17 +10,10 @@ interface SettingsFormProps {
   initialPhone: string;
 }
 
-export default function SettingsForm({ initialName, initialEmail, initialPhone }: SettingsFormProps) {
-  const [name, setName] = useState(initialName);
-  const [email, setEmail] = useState(initialEmail);
-  const [phone, setPhone] = useState(initialPhone);
-  const [saved, setSaved] = useState(false);
+const initialState: UpdateProfileState = { error: null, message: null };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
+export default function SettingsForm({ initialName, initialEmail, initialPhone }: SettingsFormProps) {
+  const [state, formAction, pending] = useActionState(updateProfile, initialState);
 
   return (
     <div className="space-y-6">
@@ -27,13 +21,13 @@ export default function SettingsForm({ initialName, initialEmail, initialPhone }
         ACCOUNT SETTINGS
       </h2>
 
-      <form onSubmit={handleSave} className="p-6 bg-[#0f0f0f] border border-white/10 space-y-4">
+      <form action={formAction} className="p-6 bg-[#0f0f0f] border border-white/10 space-y-4">
         <div>
           <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">FULL NAME</label>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            name="name"
+            defaultValue={initialName}
             className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
           />
         </div>
@@ -42,8 +36,8 @@ export default function SettingsForm({ initialName, initialEmail, initialPhone }
           <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">EMAIL ADDRESS</label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
+            defaultValue={initialEmail}
             className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
           />
         </div>
@@ -52,17 +46,31 @@ export default function SettingsForm({ initialName, initialEmail, initialPhone }
           <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">PHONE NUMBER</label>
           <input
             type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            name="phone"
+            defaultValue={initialPhone}
             className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
           />
         </div>
 
+        {state.error && (
+          <p className="text-[10px] font-mono text-red-400 border border-red-500/30 bg-red-950/30 px-3 py-2">
+            {state.error}
+          </p>
+        )}
+        {!state.error && state.message && (
+          <p className="text-[10px] font-mono text-emerald-400 border border-emerald-500/30 bg-emerald-950/30 px-3 py-2">
+            {state.message}
+          </p>
+        )}
+
         <button
           type="submit"
-          className="clay-button-primary px-6 py-3 text-xs font-mono uppercase tracking-widest flex items-center gap-2"
+          disabled={pending}
+          className="clay-button-primary px-6 py-3 text-xs font-mono uppercase tracking-widest flex items-center gap-2 disabled:opacity-60"
         >
-          {saved ? (
+          {pending ? (
+            "SAVING..."
+          ) : state.message && !state.error ? (
             <>
               <Check className="w-4 h-4" /> SETTINGS SAVED
             </>
