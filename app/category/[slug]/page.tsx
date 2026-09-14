@@ -1,22 +1,12 @@
-"use client";
-
-import { use } from "react";
 import Link from "next/link";
 import ProductCard from "../../components/ui/ProductCard";
-import { mockProducts, mockCategories } from "../../data/mockProducts";
+import { getCategoryBySlug, getProducts } from "@/lib/catalog";
 
-export default function CategoryPage(props: PageProps<"/category/[slug]">) {
-  const { slug } = use(props.params);
+export default async function CategoryPage(props: PageProps<"/category/[slug]">) {
+  const { slug } = await props.params;
 
-  const categoryObj = mockCategories.find((c) => c.slug === slug) || {
-    slug,
-    name: slug.toUpperCase(),
-    count: 0
-  };
-
-  const categoryProducts = mockProducts.filter(
-    (p) => p.category.toLowerCase().replace(/\s+/g, "-") === slug || p.category.toLowerCase().includes(slug)
-  );
+  const categoryObj = (await getCategoryBySlug(slug)) || { slug, name: slug.toUpperCase(), count: 0 };
+  const categoryProducts = await getProducts({ categorySlug: slug });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

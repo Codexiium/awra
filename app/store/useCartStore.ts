@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { CartItem, Product, PromoResult } from "@/app/types";
+import { syncUpsertCartItem, syncRemoveCartItem, syncClearCart } from "@/lib/supabase/sync";
+import { applyPromoCode as applyPromoCodeAction } from "@/lib/promo/actions";
 
 interface CartState {
   cart: CartItem[];
@@ -16,9 +18,10 @@ interface CartState {
   addItem: (product: Product, selectedSize?: string, selectedColor?: string, quantity?: number) => void;
   removeItem: (productId: string, selectedSize: string, selectedColor: string) => void;
   updateQuantity: (productId: string, selectedSize: string, selectedColor: string, newQty: number) => void;
-  applyPromoCode: (code: string) => PromoResult;
+  applyPromoCode: (code: string) => Promise<PromoResult>;
   clearCart: () => void;
   clearToast: () => void;
+  hydrateCart: (items: CartItem[]) => void;
 
   getSubtotal: () => number;
   getDiscountAmount: () => number;
@@ -46,14 +49,14 @@ export const useCartStore = create<CartState>()(
         );
 
         let newCart: CartItem[];
+        let newQuantity: number;
         if (existingIndex > -1) {
           newCart = [...currentCart];
-          newCart[existingIndex] = {
-            ...newCart[existingIndex],
-            quantity: newCart[existingIndex].quantity + quantity
-          };
+          newQuantity = newCart[existingIndex].quantity + quantity;
+          newCart[existingIndex] = { ...newCart[existingIndex], quantity: newQuantity };
         } else {
           newCart = [...currentCart, { product, selectedSize, selectedColor, quantity }];
+          newQuantity = quantity;
         }
 
         set({
@@ -61,6 +64,7 @@ export const useCartStore = create<CartState>()(
           isOpen: true,
           toastMessage: `Added ${product.name} to bag`
         });
+        syncUpsertCartItem(product.id, selectedSize, selectedColor, newQuantity);
       },
 
       removeItem: (productId, selectedSize, selectedColor) => {
@@ -68,6 +72,7 @@ export const useCartStore = create<CartState>()(
           (item) => !(item.product.id === productId && item.selectedSize === selectedSize && item.selectedColor === selectedColor)
         );
         set({ cart: newCart, toastMessage: "Item removed from bag" });
+        syncRemoveCartItem(productId, selectedSize, selectedColor);
       },
 
       updateQuantity: (productId, selectedSize, selectedColor, newQty) => {
@@ -82,23 +87,29 @@ export const useCartStore = create<CartState>()(
           return item;
         });
         set({ cart: newCart });
+        syncUpsertCartItem(productId, selectedSize, selectedColor, newQty);
       },
 
-      applyPromoCode: (code) => {
-        const clean = code.trim().toUpperCase();
-        if (clean === "ARWA15" || clean === "GOTHIC15") {
-          set({ promoCode: clean, discountPercent: 15, toastMessage: "15% Gothic Discount Applied!" });
-          return { success: true, message: "15% promo code applied" };
-        } else if (clean === "DARK20") {
-          set({ promoCode: clean, discountPercent: 20, toastMessage: "20% Nocturnal Discount Applied!" });
-          return { success: true, message: "20% promo code applied" };
+      applyPromoCode: async (code) => {
+        const result = await applyPromoCodeAction(code);
+        if (result.success) {
+          set({
+            promoCode: code.trim().toUpperCase(),
+            discountPercent: result.discountPercent,
+            toastMessage: result.message
+          });
         }
-        return { success: false, message: "Invalid promo code. Try ARWA15" };
+        return { success: result.success, message: result.message };
       },
 
-      clearCart: () => set({ cart: [], promoCode: "", discountPercent: 0 }),
+      clearCart: () => {
+        set({ cart: [], promoCode: "", discountPercent: 0 });
+        syncClearCart();
+      },
 
       clearToast: () => set({ toastMessage: null }),
+
+      hydrateCart: (items) => set({ cart: items }),
 
       getSubtotal: () => {
         return get().cart.reduce((total, item) => total + item.product.price * item.quantity, 0);

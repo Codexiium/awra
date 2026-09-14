@@ -1,9 +1,10 @@
 import Link from "next/link";
 import ProductCard from "../../components/ui/ProductCard";
-import { mockProducts } from "../../data/mockProducts";
+import { getProducts } from "@/lib/catalog";
 
-export default function NewArrivalsPage() {
-  const newArrivals = mockProducts.filter((p) => p.badges?.includes("new"));
+export default async function NewArrivalsPage() {
+  const allProducts = await getProducts({ sort: "newest" });
+  const newArrivals = allProducts.filter((p) => p.badges?.includes("new"));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

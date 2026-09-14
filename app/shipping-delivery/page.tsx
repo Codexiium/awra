@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatPrice } from "@/lib/format";
 
 export default function ShippingDeliveryPage() {
   return (
@@ -18,8 +19,8 @@ export default function ShippingDeliveryPage() {
       <div className="p-8 bg-[#0f0f0f] border border-white/10 space-y-6 font-mono text-xs text-zinc-300 leading-relaxed">
         <h3 className="text-white font-bold text-sm border-b border-white/10 pb-2">EXPRESS AIR FREIGHT</h3>
         <p>All ARWA orders are packed in custom collector box packaging and shipped via Express Air Freight.</p>
-        <p><strong className="text-white">COMPLIMENTARY SHIPPING:</strong> Orders over $250 USD automatically qualify for free express shipping.</p>
-        <p><strong className="text-white">STANDARD EXPRESS COST:</strong> $25 USD for orders under $250 USD.</p>
+        <p><strong className="text-white">COMPLIMENTARY SHIPPING:</strong> Orders over {formatPrice(250)} automatically qualify for free express shipping.</p>
+        <p><strong className="text-white">STANDARD EXPRESS COST:</strong> {formatPrice(25)} for orders under {formatPrice(250)}.</p>
         <p><strong className="text-white">DELIVERY TIMELINE:</strong> 2 to 3 business days worldwide with real-time SMS/email tracking.</p>
       </div>
     </div>

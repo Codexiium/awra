@@ -1,9 +1,11 @@
 import Link from "next/link";
 import ProductImage from "../components/ui/ProductImage";
-import { mockCollections } from "../data/mockProducts";
+import { getCollections } from "@/lib/catalog";
 import { ArrowRight } from "lucide-react";
 
-export default function CollectionsIndexPage() {
+export default async function CollectionsIndexPage() {
+  const collections = await getCollections();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <nav className="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-6 flex items-center gap-2">
@@ -25,7 +27,7 @@ export default function CollectionsIndexPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {mockCollections.map((col, idx) => (
+        {collections.map((col, idx) => (
           <Link
             key={col.slug}
             href={`/collections/${col.slug}`}

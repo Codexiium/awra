@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Lock, CreditCard } from "lucide-react";
 import ProductImage from "../components/ui/ProductImage";
 import { useCartStore } from "../store/useCartStore";
+import { formatPrice } from "@/lib/format";
 
 interface CheckoutFormData {
   email: string;
@@ -243,7 +244,7 @@ export default function CheckoutPage() {
                     <span className="text-[10px] text-zinc-400">2–3 BUSINESS DAYS WITH TRACKING</span>
                   </div>
                 </div>
-                <span className="text-white font-bold">{shipping === 0 ? "FREE" : `$${shipping} USD`}</span>
+                <span className="text-white font-bold">{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
               </label>
             </div>
           </div>
@@ -306,7 +307,7 @@ export default function CheckoutPage() {
               <span>PROCESSING TRANSACTION...</span>
             ) : (
               <>
-                <Lock className="w-4 h-4" /> CONFIRM &amp; PLACE ORDER — ${grandTotal} USD
+                <Lock className="w-4 h-4" /> CONFIRM &amp; PLACE ORDER — {formatPrice(grandTotal)}
               </>
             )}
           </button>
@@ -330,7 +331,7 @@ export default function CheckoutPage() {
                     <p className="text-white line-clamp-1 font-semibold">{item.product.name}</p>
                     <p className="text-[10px] text-zinc-500">SIZE {item.selectedSize} · QTY {item.quantity}</p>
                   </div>
-                  <span className="font-bold text-white">${item.product.price * item.quantity}</span>
+                  <span className="font-bold text-white">{formatPrice(item.product.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
@@ -339,21 +340,21 @@ export default function CheckoutPage() {
             <div className="space-y-2 text-xs font-mono text-zinc-400 pt-4 border-t border-white/10">
               <div className="flex justify-between">
                 <span>SUBTOTAL</span>
-                <span className="text-zinc-200">${subtotal}</span>
+                <span className="text-zinc-200">{formatPrice(subtotal)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-400">
                   <span>DISCOUNT</span>
-                  <span>-${discount}</span>
+                  <span>-{formatPrice(discount)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span>EXPRESS SHIPPING</span>
-                <span>{shipping === 0 ? "FREE" : `$${shipping}`}</span>
+                <span>{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
               </div>
               <div className="flex justify-between text-base font-bold text-white pt-2 border-t border-white/10">
                 <span>TOTAL DUE</span>
-                <span>${grandTotal} USD</span>
+                <span>{formatPrice(grandTotal)}</span>
               </div>
             </div>
           </div>

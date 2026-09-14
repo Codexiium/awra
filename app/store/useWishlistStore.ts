@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Product } from "@/app/types";
+import { syncAddWishlistItem, syncRemoveWishlistItem } from "@/lib/supabase/sync";
 
 interface WishlistState {
   wishlist: Product[];
@@ -10,6 +11,7 @@ interface WishlistState {
   isInWishlist: (productId: string) => boolean;
   clearWishlist: () => void;
   clearToast: () => void;
+  hydrateWishlist: (products: Product[]) => void;
 }
 
 export const useWishlistStore = create<WishlistState>()(
@@ -27,11 +29,13 @@ export const useWishlistStore = create<WishlistState>()(
             wishlist: current.filter((item) => item.id !== product.id),
             toastMessage: `Removed ${product.name} from wishlist`
           });
+          syncRemoveWishlistItem(product.id);
         } else {
           set({
             wishlist: [...current, product],
             toastMessage: `Saved ${product.name} to wishlist`
           });
+          syncAddWishlistItem(product.id);
         }
       },
 
@@ -40,7 +44,9 @@ export const useWishlistStore = create<WishlistState>()(
       },
 
       clearWishlist: () => set({ wishlist: [] }),
-      clearToast: () => set({ toastMessage: null })
+      clearToast: () => set({ toastMessage: null }),
+
+      hydrateWishlist: (products) => set({ wishlist: products })
     }),
     {
       name: "arwa-wishlist-storage"

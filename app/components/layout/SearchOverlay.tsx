@@ -5,10 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, X, ArrowUpRight, Sparkles } from "lucide-react";
 import { useSearchStore } from "@/app/store/useSearchStore";
-import { mockProducts } from "@/app/data/mockProducts";
 import ProductCard from "../ui/ProductCard";
+import type { Product } from "@/app/types";
 
-export default function SearchOverlay() {
+interface SearchOverlayProps {
+  products: Product[];
+}
+
+export default function SearchOverlay({ products }: SearchOverlayProps) {
   const router = useRouter();
   const { isOpen, query, closeSearch, setQuery, recentSearches, addRecentSearch } = useSearchStore();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,7 +26,7 @@ export default function SearchOverlay() {
   if (!isOpen) return null;
 
   const filteredProducts = query.trim()
-    ? mockProducts.filter(
+    ? products.filter(
         (p) =>
           p.name.toLowerCase().includes(query.toLowerCase()) ||
           p.category.toLowerCase().includes(query.toLowerCase()) ||

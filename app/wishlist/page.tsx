@@ -5,13 +5,13 @@ import { Heart, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
 import ProductCard from "../components/ui/ProductCard";
 import { useWishlistStore } from "../store/useWishlistStore";
 import { useCartStore } from "../store/useCartStore";
-import { useAuthStore } from "../store/useAuthStore";
+import { useUser } from "@/lib/supabase/useUser";
 import type { Product } from "../types";
 
 export default function WishlistPage() {
   const { wishlist, toggleWishlist } = useWishlistStore();
   const { addItem } = useCartStore();
-  const { isLoggedIn } = useAuthStore();
+  const { isLoggedIn } = useUser();
 
   const handleMoveToCart = (product: Product) => {
     const size = product.sizes?.find((s) => s.available)?.size || "M";

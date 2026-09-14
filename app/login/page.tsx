@@ -1,22 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
+import { signIn, type AuthActionState } from "@/lib/supabase/actions";
+
+const initialState: AuthActionState = { error: null };
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("maelis.vane@arwawear.com");
-  const [password, setPassword] = useState("••••••••");
-  const { login } = useAuthStore();
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    login(email, password);
-    router.push("/account");
-  };
+  const [state, formAction, pending] = useActionState(signIn, initialState);
 
   return (
     <div className="max-w-md mx-auto px-4 py-20">
@@ -29,14 +21,13 @@ export default function LoginPage() {
         </h1>
       </div>
 
-      <form onSubmit={handleLogin} className="p-8 bg-[#0f0f0f] border border-white/15 space-y-6">
+      <form action={formAction} className="p-8 bg-[#0f0f0f] border border-white/15 space-y-6">
         <div>
           <label className="block text-xs font-mono text-zinc-400 uppercase mb-2">EMAIL ADDRESS</label>
           <input
             type="email"
+            name="email"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
           />
         </div>
@@ -45,18 +36,24 @@ export default function LoginPage() {
           <label className="block text-xs font-mono text-zinc-400 uppercase mb-2">PASSWORD</label>
           <input
             type="password"
+            name="password"
             required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
           />
         </div>
 
+        {state.error && (
+          <p className="text-xs font-mono text-red-400 border border-red-500/30 bg-red-950/30 px-4 py-3">
+            {state.error}
+          </p>
+        )}
+
         <button
           type="submit"
-          className="clay-button-primary w-full py-4 text-xs font-mono uppercase tracking-widest flex items-center justify-center gap-2"
+          disabled={pending}
+          className="clay-button-primary w-full py-4 text-xs font-mono uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-60"
         >
-          <span>SIGN IN</span>
+          <span>{pending ? "SIGNING IN..." : "SIGN IN"}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
 

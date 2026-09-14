@@ -1,25 +1,26 @@
-"use client";
-
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { User, Package, MapPin, Settings, LogOut } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
+import { createClient } from "@/lib/supabase/server";
+import { signOut } from "@/lib/supabase/actions";
 
-export default function AccountLayout({ children }: LayoutProps<"/account">) {
-  const router = useRouter();
-  const { isLoggedIn, user, logout } = useAuthStore();
+export default async function AccountLayout({ children }: LayoutProps<"/account">) {
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getClaims();
+  const claims = auth?.claims;
 
-  if (!isLoggedIn) {
-    return (
-      <div className="max-w-xl mx-auto px-4 py-24 text-center">
-        <h1 className="font-gothic text-3xl text-white mb-2">ACCESS RESTRICTED</h1>
-        <p className="text-xs font-mono text-zinc-500 mb-6">Please sign in to view your archival client profile.</p>
-        <Link href="/login" className="clay-button-primary px-8 py-3 text-xs font-mono uppercase">
-          SIGN IN TO ACCOUNT
-        </Link>
-      </div>
-    );
+  if (!claims) {
+    redirect("/login");
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, tier")
+    .eq("id", claims.sub)
+    .single();
+
+  const displayName = (profile?.full_name || claims.email?.split("@")[0] || "CLIENT").toUpperCase();
+  const tier = profile?.tier || "Member";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -33,23 +34,21 @@ export default function AccountLayout({ children }: LayoutProps<"/account">) {
       <div className="pb-8 border-b border-white/10 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest block mb-1">
-            CLIENT PORTAL · {user.tier}
+            CLIENT PORTAL · {tier}
           </span>
           <h1 className="font-gothic text-4xl text-white tracking-widest uppercase">
-            WELCOME, {user.name}
+            WELCOME, {displayName}
           </h1>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            logout();
-            router.push("/");
-          }}
-          className="clay-button-secondary px-4 py-2 text-xs font-mono uppercase flex items-center gap-2 self-start"
-        >
-          <LogOut className="w-3.5 h-3.5" /> LOGOUT
-        </button>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="clay-button-secondary px-4 py-2 text-xs font-mono uppercase flex items-center gap-2 self-start"
+          >
+            <LogOut className="w-3.5 h-3.5" /> LOGOUT
+          </button>
+        </form>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

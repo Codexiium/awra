@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ProductImage from "../components/ui/ProductImage";
+import { formatPrice } from "@/lib/format";
 
 interface Look {
   title: string;
@@ -44,7 +45,7 @@ export default function LookbookPage() {
                 {look.title}
               </span>
               <h3 className="font-gothic text-2xl text-white tracking-wide">{look.garment}</h3>
-              <p className="text-xs font-mono text-zinc-400 mt-1">${look.price} USD</p>
+              <p className="text-xs font-mono text-zinc-400 mt-1">{formatPrice(look.price)}</p>
             </div>
           </div>
         ))}

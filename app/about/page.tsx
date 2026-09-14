@@ -26,7 +26,7 @@ export default function AboutPage() {
         {/* Subtle Watermark */}
         <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
           <div className="relative w-96 h-96">
-            <Image src="/Pasted image.png" alt="ARWA Watermark" fill className="object-contain" />
+            <Image src="/logo.png" alt="ARWA Watermark" fill sizes="384px" className="object-contain" />
           </div>
         </div>
 

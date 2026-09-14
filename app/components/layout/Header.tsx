@@ -6,19 +6,24 @@ import Image from "next/image";
 import { Search, Heart, ShoppingBag, User, Menu } from "lucide-react";
 import { useCartStore } from "@/app/store/useCartStore";
 import { useWishlistStore } from "@/app/store/useWishlistStore";
-import { useAuthStore } from "@/app/store/useAuthStore";
+import { useUser } from "@/lib/supabase/useUser";
 import { useSearchStore } from "@/app/store/useSearchStore";
-import { mockCollections, mockCategories } from "@/app/data/mockProducts";
 import MobileNavDrawer from "./MobileNavDrawer";
+import type { ProductCategory, ProductCollection } from "@/app/types";
 
-export default function Header() {
+interface HeaderProps {
+  categories: ProductCategory[];
+  collections: ProductCollection[];
+}
+
+export default function Header({ categories, collections }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [shopMegaOpen, setShopMegaOpen] = useState(false);
 
   const { cart, openCart } = useCartStore();
   const { wishlist } = useWishlistStore();
-  const { isLoggedIn } = useAuthStore();
+  const { isLoggedIn } = useUser();
   const { openSearch } = useSearchStore();
 
   const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -59,9 +64,10 @@ export default function Header() {
             <Link href="/" className="relative flex items-center gap-3 group">
               <div className="relative w-9 h-9 sm:w-10 sm:h-10 overflow-hidden rounded-full border border-white/20 p-1 bg-black group-hover:border-white/50 transition-colors">
                 <Image
-                  src="/Pasted image.png"
+                  src="/logo.png"
                   alt="ARWA Gothic Mark"
                   fill
+                  sizes="40px"
                   className="object-contain p-0.5"
                   priority
                 />
@@ -93,7 +99,7 @@ export default function Header() {
                         Categories
                       </h4>
                       <ul className="space-y-2.5 text-xs text-zinc-300">
-                        {mockCategories.map((cat) => (
+                        {categories.map((cat) => (
                           <li key={cat.slug}>
                             <Link
                               href={`/category/${cat.slug}`}
@@ -112,7 +118,7 @@ export default function Header() {
                         Featured Collections
                       </h4>
                       <ul className="space-y-2.5 text-xs text-zinc-300">
-                        {mockCollections.map((col) => (
+                        {collections.map((col) => (
                           <li key={col.slug}>
                             <Link href={`/collections/${col.slug}`} className="hover:text-white block">
                               <span className="font-semibold">{col.title}</span>
@@ -199,7 +205,12 @@ export default function Header() {
       </header>
 
       {/* Mobile Drawer Navigation */}
-      <MobileNavDrawer isOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
+      <MobileNavDrawer
+        isOpen={mobileNavOpen}
+        onClose={() => setMobileNavOpen(false)}
+        categories={categories}
+        collections={collections}
+      />
     </>
   );
 }

@@ -25,9 +25,10 @@ export default function Footer() {
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden opacity-[0.05]">
         <div className="relative w-[700px] h-[700px]">
           <Image
-            src="/Pasted image.png"
+            src="/logo.png"
             alt="ARWA Watermark"
             fill
+            sizes="700px"
             className="object-contain filter grayscale"
           />
         </div>
@@ -39,7 +40,7 @@ export default function Footer() {
           <div className="lg:col-span-6">
             <Link href="/" className="inline-flex items-center gap-3 mb-4">
               <div className="relative w-8 h-8 rounded-full border border-white/20 p-0.5 bg-black">
-                <Image src="/Pasted image.png" alt="ARWA Logo" fill className="object-contain" />
+                <Image src="/logo.png" alt="ARWA Logo" fill sizes="32px" className="object-contain" />
               </div>
               <span className="font-gothic text-2xl tracking-widest text-zinc-100">ARWA</span>
             </Link>

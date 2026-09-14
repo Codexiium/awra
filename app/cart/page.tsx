@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from "lucide-react";
 import ProductImage from "../components/ui/ProductImage";
 import { useCartStore } from "../store/useCartStore";
+import { formatPrice } from "@/lib/format";
 
 export default function FullCartPage() {
   const {
@@ -27,9 +28,9 @@ export default function FullCartPage() {
   const shipping = getShippingCost();
   const grandTotal = getGrandTotal();
 
-  const handleApplyPromo = (e: React.FormEvent) => {
+  const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = applyPromoCode(inputCode);
+    const res = await applyPromoCode(inputCode);
     setPromoMessage(res.message);
     if (res.success) setInputCode("");
   };
@@ -100,7 +101,7 @@ export default function FullCartPage() {
                     SIZE: {item.selectedSize} · COLOR: {item.selectedColor}
                   </p>
                   <p className="text-xs font-mono text-zinc-200 mt-2 font-bold">
-                    ${item.product.price} USD
+                    {formatPrice(item.product.price)}
                   </p>
                 </div>
               </div>
@@ -131,7 +132,7 @@ export default function FullCartPage() {
 
                 <div className="text-right">
                   <p className="text-sm font-mono font-bold text-white">
-                    ${item.product.price * item.quantity}
+                    {formatPrice(item.product.price * item.quantity)}
                   </p>
                   <button
                     type="button"
@@ -173,24 +174,24 @@ export default function FullCartPage() {
             <div className="space-y-3 text-xs font-mono text-zinc-300">
               <div className="flex justify-between">
                 <span>BAG SUBTOTAL</span>
-                <span>${subtotal}</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
 
               {discountPercent > 0 && (
                 <div className="flex justify-between text-emerald-400">
                   <span>PROMO DISCOUNT ({discountPercent}%)</span>
-                  <span>-${discount}</span>
+                  <span>-{formatPrice(discount)}</span>
                 </div>
               )}
 
               <div className="flex justify-between">
                 <span>EXPRESS SHIPPING</span>
-                <span>{shipping === 0 ? "FREE" : `$${shipping}`}</span>
+                <span>{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
               </div>
 
               <div className="flex justify-between text-sm font-bold text-white pt-4 border-t border-white/10">
                 <span>ESTIMATED TOTAL</span>
-                <span>${grandTotal} USD</span>
+                <span>{formatPrice(grandTotal)}</span>
               </div>
             </div>
 

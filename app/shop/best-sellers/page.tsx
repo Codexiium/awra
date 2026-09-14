@@ -1,9 +1,9 @@
 import Link from "next/link";
 import ProductCard from "../../components/ui/ProductCard";
-import { mockProducts } from "../../data/mockProducts";
+import { getProducts } from "@/lib/catalog";
 
-export default function BestSellersPage() {
-  const bestSellers = [...mockProducts].sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 6);
+export default async function BestSellersPage() {
+  const bestSellers = (await getProducts({ sort: "best-selling" })).slice(0, 6);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -1,14 +1,11 @@
-"use client";
-
-import { use } from "react";
 import Link from "next/link";
 import ProductCard from "../../components/ui/ProductCard";
-import { mockProducts, mockCollections } from "../../data/mockProducts";
+import { getCollectionBySlug, getProducts } from "@/lib/catalog";
 
-export default function CollectionDetailPage(props: PageProps<"/collections/[slug]">) {
-  const { slug } = use(props.params);
+export default async function CollectionDetailPage(props: PageProps<"/collections/[slug]">) {
+  const { slug } = await props.params;
 
-  const collectionObj = mockCollections.find((c) => c.slug === slug) || {
+  const collectionObj = (await getCollectionBySlug(slug)) || {
     slug,
     title: slug.replace(/-/g, " ").toUpperCase(),
     subtitle: "LIMITED ARCHIVE",
@@ -16,9 +13,7 @@ export default function CollectionDetailPage(props: PageProps<"/collections/[slu
     itemCount: 0
   };
 
-  const collectionProducts = mockProducts.filter(
-    (p) => p.collection.toLowerCase().replace(/\s+/g, "-") === slug || p.collection.toLowerCase().includes(slug.replace(/-/g, " "))
-  );
+  const collectionProducts = await getProducts({ collectionSlug: slug });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -1,36 +1,19 @@
-"use client";
-
-import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
-import gsap from "gsap";
 import ProductImage from "./components/ui/ProductImage";
 import ProductCard from "./components/ui/ProductCard";
-import { mockProducts, mockCategories } from "./data/mockProducts";
+import HeroEntrance from "./components/home/HeroEntrance";
+import { getProducts, getCategories } from "@/lib/catalog";
+import { formatPrice } from "@/lib/format";
 
-export default function Home() {
-  const heroTextRef = useRef<HTMLDivElement>(null);
-  const heroBannerRef = useRef<HTMLDivElement>(null);
+export default async function Home() {
+  const [allProducts, categories] = await Promise.all([
+    getProducts({ sort: "newest" }),
+    getCategories()
+  ]);
 
-  useEffect(() => {
-    // GSAP Hero Entrance Choreography (PRD Section 20)
-    if (heroTextRef.current) {
-      gsap.fromTo(
-        heroTextRef.current.children,
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: "power3.out"
-        }
-      );
-    }
-  }, []);
-
-  const featuredProducts = mockProducts.slice(0, 4);
-  const bestSellerProducts = mockProducts.slice(4, 8);
+  const featuredProducts = allProducts.slice(0, 4);
+  const bestSellerProducts = allProducts.slice(4, 8);
 
   return (
     <div className="w-full bg-[#080808]">
@@ -45,7 +28,7 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Asymmetric Left Text Block */}
-          <div ref={heroTextRef} className="lg:col-span-7 flex flex-col items-start text-left">
+          <HeroEntrance>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.04] border border-white/15 text-zinc-300 text-[11px] font-mono tracking-widest uppercase mb-6 rounded-none">
               <span className="text-zinc-400 font-gothic">✦</span>
               <span>DROP 04 — WINTER ARCHIVE 2026</span>
@@ -76,10 +59,10 @@ export default function Home() {
                 EXPLORE LOOKBOOK
               </Link>
             </div>
-          </div>
+          </HeroEntrance>
 
           {/* Right Hero Image Card (PRD Section 3 Placeholder) */}
-          <div className="lg:col-span-5 relative" ref={heroBannerRef}>
+          <div className="lg:col-span-5 relative">
             <div className="relative p-2 bg-[#121212] border border-white/15 shadow-2xl">
               <ProductImage
                 src={null}
@@ -95,7 +78,7 @@ export default function Home() {
                 <p className="text-sm font-semibold text-zinc-100 font-sans">
                   CATHEDRAL OVERSIZED TRENCH
                 </p>
-                <p className="text-xs font-mono text-zinc-400 mt-1">$680 USD · LIMITED 50 PIECES</p>
+                <p className="text-xs font-mono text-zinc-400 mt-1">{formatPrice(680)} · LIMITED 50 PIECES</p>
               </div>
             </div>
           </div>
@@ -139,7 +122,7 @@ export default function Home() {
             href="/shop"
             className="text-xs font-mono text-zinc-400 hover:text-white uppercase tracking-widest flex items-center gap-1.5"
           >
-            <span>VIEW ALL GARMENTS ({mockProducts.length})</span>
+            <span>VIEW ALL GARMENTS ({allProducts.length})</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -164,7 +147,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {mockCategories.slice(0, 4).map((cat, idx) => (
+            {categories.slice(0, 4).map((cat, idx) => (
               <Link
                 key={cat.slug}
                 href={`/category/${cat.slug}`}
@@ -267,7 +250,7 @@ export default function Home() {
             GLOBAL LOGISTICS
           </span>
           <h3 className="font-gothic text-3xl sm:text-4xl text-white mb-4">
-            COMPLIMENTARY EXPRESS SHIPPING OVER $250
+            COMPLIMENTARY EXPRESS SHIPPING OVER {formatPrice(250)}
           </h3>
           <p className="text-xs text-zinc-400 font-sans max-w-lg mx-auto mb-6">
             All orders are shipped via express DHL air freight in custom matte black collector box packaging with metallic seal certificate.

@@ -33,8 +33,17 @@ export default function ProductImage({
   gothicSymbol = "✦"
 }: ProductImageProps) {
   const [imageState, setImageState] = useState<ImageLoadState>(src ? "loading" : "placeholder");
+  const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
+  const [isZooming, setIsZooming] = useState(false);
 
   const selectedAspectClass = aspectClassMap[aspectRatio] || "aspect-[4/5]";
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomOrigin(`${x}% ${y}%`);
+  };
 
   if (!src || imageState === "placeholder") {
     return (
@@ -66,7 +75,15 @@ export default function ProductImage({
   }
 
   return (
-    <div className={`relative w-full ${selectedAspectClass} overflow-hidden bg-[#0d0d0d] ${className}`}>
+    <div
+      className={`relative w-full ${selectedAspectClass} overflow-hidden bg-[#0d0d0d] cursor-zoom-in ${className}`}
+      onMouseEnter={() => setIsZooming(true)}
+      onMouseLeave={() => {
+        setIsZooming(false);
+        setZoomOrigin("50% 50%");
+      }}
+      onMouseMove={handleMouseMove}
+    >
       {imageState === "loading" && (
         <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 animate-pulse" />
       )}
@@ -78,9 +95,15 @@ export default function ProductImage({
         priority={priority}
         onLoad={() => setImageState("loaded")}
         onError={() => setImageState("placeholder")}
-        className={`object-cover object-center transition-all duration-700 ${
-          imageState === "loaded" ? "opacity-100 scale-100" : "opacity-0 scale-105"
-        }`}
+        style={{
+          transformOrigin: zoomOrigin,
+          transitionProperty: "opacity, transform",
+          transitionDuration: "700ms, 300ms",
+          transitionTimingFunction: "ease, ease-out"
+        }}
+        className={`object-contain object-center ${
+          imageState === "loaded" ? "opacity-100" : "opacity-0"
+        } ${isZooming ? "scale-125" : "scale-100"}`}
       />
     </div>
   );

@@ -4,14 +4,16 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { X, ChevronDown } from "lucide-react";
-import { mockCategories, mockCollections } from "@/app/data/mockProducts";
+import type { ProductCategory, ProductCollection } from "@/app/types";
 
 interface MobileNavDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  categories: ProductCategory[];
+  collections: ProductCollection[];
 }
 
-export default function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
+export default function MobileNavDrawer({ isOpen, onClose, categories, collections }: MobileNavDrawerProps) {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [collectionsOpen, setCollectionsOpen] = useState(false);
 
@@ -32,7 +34,7 @@ export default function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProp
           <div className="flex items-center justify-between pb-6 border-b border-white/10 mb-6">
             <Link href="/" onClick={onClose} className="flex items-center gap-2">
               <div className="relative w-8 h-8 rounded-full border border-white/20 p-0.5 bg-black">
-                <Image src="/Pasted image.png" alt="ARWA Logo" fill className="object-contain" />
+                <Image src="/logo.png" alt="ARWA Logo" fill sizes="32px" className="object-contain" />
               </div>
               <span className="font-gothic text-xl tracking-widest text-white">ARWA</span>
             </Link>
@@ -65,7 +67,7 @@ export default function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProp
               </button>
               {categoriesOpen && (
                 <div className="pl-4 py-2 space-y-2 text-xs font-sans normal-case text-zinc-400">
-                  {mockCategories.map((cat) => (
+                  {categories.map((cat) => (
                     <Link
                       key={cat.slug}
                       href={`/category/${cat.slug}`}
@@ -91,7 +93,7 @@ export default function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProp
               </button>
               {collectionsOpen && (
                 <div className="pl-4 py-2 space-y-2 text-xs font-sans normal-case text-zinc-400">
-                  {mockCollections.map((col) => (
+                  {collections.map((col) => (
                     <Link
                       key={col.slug}
                       href={`/collections/${col.slug}`}

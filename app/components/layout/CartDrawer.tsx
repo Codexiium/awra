@@ -5,6 +5,7 @@ import Link from "next/link";
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Tag } from "lucide-react";
 import ProductImage from "../ui/ProductImage";
 import { useCartStore } from "@/app/store/useCartStore";
+import { formatPrice } from "@/lib/format";
 
 export default function CartDrawer() {
   const {
@@ -34,10 +35,10 @@ export default function CartDrawer() {
   const freeShippingThreshold = 250;
   const progressToFreeShipping = Math.min(100, (subtotal / freeShippingThreshold) * 100);
 
-  const handleApplyPromo = (e: React.FormEvent) => {
+  const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
     setPromoError("");
-    const res = applyPromoCode(inputCode);
+    const res = await applyPromoCode(inputCode);
     if (!res.success) {
       setPromoError(res.message);
     } else {
@@ -158,7 +159,7 @@ export default function CartDrawer() {
                   {/* Price & Quantity Stepper */}
                   <div className="flex items-center justify-between mt-3">
                     <span className="text-xs font-mono font-medium text-zinc-200">
-                      ${item.product.price * item.quantity}
+                      {formatPrice(item.product.price * item.quantity)}
                     </span>
 
                     {/* Stepper */}
@@ -219,24 +220,24 @@ export default function CartDrawer() {
             <div className="space-y-1.5 text-xs font-mono text-zinc-400">
               <div className="flex items-center justify-between">
                 <span>SUBTOTAL</span>
-                <span className="text-zinc-200">${subtotal}</span>
+                <span className="text-zinc-200">{formatPrice(subtotal)}</span>
               </div>
 
               {discountPercent > 0 && (
                 <div className="flex items-center justify-between text-emerald-400">
                   <span>DISCOUNT ({discountPercent}%)</span>
-                  <span>-${discount}</span>
+                  <span>-{formatPrice(discount)}</span>
                 </div>
               )}
 
               <div className="flex items-center justify-between">
                 <span>ESTIMATED SHIPPING</span>
-                <span>{shipping === 0 ? "FREE" : `$${shipping}`}</span>
+                <span>{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
               </div>
 
               <div className="flex items-center justify-between text-sm font-bold text-white pt-2 border-t border-white/10">
                 <span>ESTIMATED TOTAL</span>
-                <span>${grandTotal}</span>
+                <span>{formatPrice(grandTotal)}</span>
               </div>
             </div>
 

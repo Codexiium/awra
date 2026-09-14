@@ -1,25 +1,14 @@
-"use client";
-
-import { use } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import ProductCard from "../components/ui/ProductCard";
-import { mockProducts } from "../data/mockProducts";
+import { searchProducts } from "@/lib/catalog";
 
-export default function SearchResultsPage(props: PageProps<"/search">) {
-  const resolvedSearchParams = use(props.searchParams);
+export default async function SearchResultsPage(props: PageProps<"/search">) {
+  const resolvedSearchParams = await props.searchParams;
   const queryParam = resolvedSearchParams.q;
   const query = Array.isArray(queryParam) ? queryParam[0] || "" : queryParam || "";
 
-  const searchResults = query.trim()
-    ? mockProducts.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.category.toLowerCase().includes(query.toLowerCase()) ||
-          p.collection.toLowerCase().includes(query.toLowerCase()) ||
-          p.description.toLowerCase().includes(query.toLowerCase())
-      )
-    : [];
+  const searchResults = await searchProducts(query);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -12,7 +12,7 @@ interface FaqEntry {
 const faqs: FaqEntry[] = [
   {
     q: "WHAT ARE THE SHIPPING TIMELINES AND COSTS?",
-    a: "We ship all orders via express DHL air freight. Orders over $250 USD receive complimentary express shipping. Standard delivery takes 2 to 3 business days globally."
+    a: "We ship all orders via express DHL air freight. Orders over ₹250/- receive complimentary express shipping. Standard delivery takes 2 to 3 business days globally."
   },
   {
     q: "WHAT IS THE ARWA RETURN POLICY?",

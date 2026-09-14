@@ -1,67 +1,65 @@
-"use client";
-
-import { useState, useMemo } from "react";
 import Link from "next/link";
-import { SlidersHorizontal, X, RefreshCw } from "lucide-react";
+import { X, RefreshCw } from "lucide-react";
 import ProductCard from "../components/ui/ProductCard";
-import { mockProducts, mockCategories, mockCollections } from "../data/mockProducts";
+import SortSelect from "./SortSelect";
+import MobileFilterDrawer from "./MobileFilterDrawer";
+import { getProducts, getCategories, getCollections, getDistinctSizesAndColors } from "@/lib/catalog";
 
 type SortOption = "newest" | "price-low" | "price-high" | "best-selling" | "alphabetical";
 
-export default function ShopPage() {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedCollection, setSelectedCollection] = useState("all");
-  const [selectedSize, setSelectedSize] = useState("all");
-  const [selectedColor, setSelectedColor] = useState("all");
-  const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(8);
+interface FilterOverrides {
+  category?: string;
+  collection?: string;
+  size?: string;
+  color?: string;
+  sort?: string;
+}
 
-  // Filter Logic
-  const filteredProducts = useMemo(() => {
-    let result = [...mockProducts];
+function firstParam(param: string | string[] | undefined): string | undefined {
+  return Array.isArray(param) ? param[0] : param;
+}
 
-    if (selectedCategory !== "all") {
-      result = result.filter(
-        (p) => p.category.toLowerCase().replace(/\s+/g, "-") === selectedCategory || p.category.toLowerCase() === selectedCategory.toLowerCase()
-      );
-    }
+export default async function ShopPage(props: PageProps<"/shop">) {
+  const sp = await props.searchParams;
+  const selectedCategory = firstParam(sp.category) ?? "all";
+  const selectedCollection = firstParam(sp.collection) ?? "all";
+  const selectedSize = firstParam(sp.size) ?? "all";
+  const selectedColor = firstParam(sp.color) ?? "all";
+  const sortBy = (firstParam(sp.sort) as SortOption) ?? "newest";
 
-    if (selectedCollection !== "all") {
-      result = result.filter(
-        (p) => p.collection.toLowerCase().replace(/\s+/g, "-") === selectedCollection || p.collection.toLowerCase() === selectedCollection.toLowerCase()
-      );
-    }
+  const [products, categories, collections, { sizes, colors }] = await Promise.all([
+    getProducts({
+      categorySlug: selectedCategory !== "all" ? selectedCategory : undefined,
+      collectionSlug: selectedCollection !== "all" ? selectedCollection : undefined,
+      size: selectedSize !== "all" ? selectedSize : undefined,
+      color: selectedColor !== "all" ? selectedColor : undefined,
+      sort: sortBy
+    }),
+    getCategories(),
+    getCollections(),
+    getDistinctSizesAndColors()
+  ]);
 
-    if (selectedSize !== "all") {
-      result = result.filter((p) => p.sizes?.some((s) => s.size === selectedSize && s.available));
-    }
+  const totalProductCount = categories.reduce((sum, c) => sum + c.count, 0);
 
-    if (selectedColor !== "all") {
-      result = result.filter((p) => p.colors?.some((c) => c.name.toLowerCase().includes(selectedColor.toLowerCase())));
-    }
-
-    // Sort Logic
-    if (sortBy === "price-low") {
-      result.sort((a, b) => a.price - b.price);
-    } else if (sortBy === "price-high") {
-      result.sort((a, b) => b.price - a.price);
-    } else if (sortBy === "best-selling") {
-      result.sort((a, b) => b.reviewCount - a.reviewCount);
-    } else if (sortBy === "alphabetical") {
-      result.sort((a, b) => a.name.localeCompare(b.name));
-    }
-
-    return result;
-  }, [selectedCategory, selectedCollection, selectedSize, selectedColor, sortBy]);
-
-  const clearAllFilters = () => {
-    setSelectedCategory("all");
-    setSelectedCollection("all");
-    setSelectedSize("all");
-    setSelectedColor("all");
-    setSortBy("newest");
-  };
+  function buildHref(overrides: FilterOverrides) {
+    const next = {
+      category: selectedCategory,
+      collection: selectedCollection,
+      size: selectedSize,
+      color: selectedColor,
+      sort: sortBy,
+      ...overrides
+    };
+    const params = new URLSearchParams();
+    if (next.category && next.category !== "all") params.set("category", next.category);
+    if (next.collection && next.collection !== "all") params.set("collection", next.collection);
+    if (next.size && next.size !== "all") params.set("size", next.size);
+    if (next.color && next.color !== "all") params.set("color", next.color);
+    if (next.sort && next.sort !== "newest") params.set("sort", next.sort);
+    const qs = params.toString();
+    return qs ? `/shop?${qs}` : "/shop";
+  }
 
   const hasActiveFilters =
     selectedCategory !== "all" || selectedCollection !== "all" || selectedSize !== "all" || selectedColor !== "all";
@@ -84,34 +82,23 @@ export default function ShopPage() {
             ARCHIVAL GARMENTS
           </h1>
           <p className="text-xs text-zinc-400 font-mono mt-2">
-            EXPLORE {filteredProducts.length} NOCTURNAL SILHOUETTES
+            EXPLORE {products.length} NOCTURNAL SILHOUETTES
           </p>
         </div>
 
         {/* Toolbar: Mobile filter trigger + Sort dropdown */}
         <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => setMobileFilterOpen(true)}
-            className="lg:hidden clay-button-secondary px-4 py-2.5 text-xs font-mono uppercase tracking-wider flex items-center gap-2"
-          >
-            <SlidersHorizontal className="w-4 h-4" /> FILTERS
-          </button>
+          <MobileFilterDrawer
+            sizes={sizes}
+            selectedSize={selectedSize}
+            sizeHrefs={Object.fromEntries(sizes.map((sz) => [sz, buildHref({ size: selectedSize === sz ? undefined : sz })]))}
+            resultCount={products.length}
+          />
 
           {/* Sort dropdown */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono text-zinc-500 uppercase hidden sm:inline">SORT BY:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="clay-input px-3 py-2 text-xs font-mono uppercase cursor-pointer rounded-none"
-            >
-              <option value="newest">NEWEST ARRIVALS</option>
-              <option value="price-low">PRICE: LOW TO HIGH</option>
-              <option value="price-high">PRICE: HIGH TO LOW</option>
-              <option value="best-selling">MOST WANTED</option>
-              <option value="alphabetical">ALPHABETICAL</option>
-            </select>
+            <SortSelect value={sortBy} />
           </div>
         </div>
       </div>
@@ -121,37 +108,33 @@ export default function ShopPage() {
         <div className="flex flex-wrap items-center gap-2 mb-8 p-4 bg-[#101010] border border-white/10">
           <span className="text-xs font-mono text-zinc-400 uppercase mr-2">ACTIVE FILTERS:</span>
           {selectedCategory !== "all" && (
-            <span className="clay-chip text-xs font-mono px-3 py-1 flex items-center gap-1.5 text-zinc-200">
+            <Link href={buildHref({ category: undefined })} className="clay-chip text-xs font-mono px-3 py-1 flex items-center gap-1.5 text-zinc-200">
               Category: {selectedCategory}
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory("all")} />
-            </span>
+              <X className="w-3 h-3" />
+            </Link>
           )}
           {selectedCollection !== "all" && (
-            <span className="clay-chip text-xs font-mono px-3 py-1 flex items-center gap-1.5 text-zinc-200">
+            <Link href={buildHref({ collection: undefined })} className="clay-chip text-xs font-mono px-3 py-1 flex items-center gap-1.5 text-zinc-200">
               Collection: {selectedCollection}
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCollection("all")} />
-            </span>
+              <X className="w-3 h-3" />
+            </Link>
           )}
           {selectedSize !== "all" && (
-            <span className="clay-chip text-xs font-mono px-3 py-1 flex items-center gap-1.5 text-zinc-200">
+            <Link href={buildHref({ size: undefined })} className="clay-chip text-xs font-mono px-3 py-1 flex items-center gap-1.5 text-zinc-200">
               Size: {selectedSize}
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedSize("all")} />
-            </span>
+              <X className="w-3 h-3" />
+            </Link>
           )}
           {selectedColor !== "all" && (
-            <span className="clay-chip text-xs font-mono px-3 py-1 flex items-center gap-1.5 text-zinc-200">
+            <Link href={buildHref({ color: undefined })} className="clay-chip text-xs font-mono px-3 py-1 flex items-center gap-1.5 text-zinc-200">
               Color: {selectedColor}
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedColor("all")} />
-            </span>
+              <X className="w-3 h-3" />
+            </Link>
           )}
 
-          <button
-            type="button"
-            onClick={clearAllFilters}
-            className="text-xs font-mono text-zinc-400 hover:text-white underline ml-auto"
-          >
+          <Link href="/shop" className="text-xs font-mono text-zinc-400 hover:text-white underline ml-auto">
             CLEAR ALL
-          </button>
+          </Link>
         </div>
       )}
 
@@ -166,23 +149,21 @@ export default function ShopPage() {
             </h3>
             <ul className="space-y-2 text-xs font-sans text-zinc-400">
               <li>
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategory("all")}
+                <Link
+                  href={buildHref({ category: undefined })}
                   className={`hover:text-white transition-colors ${selectedCategory === "all" ? "text-white font-bold" : ""}`}
                 >
-                  All Categories ({mockProducts.length})
-                </button>
+                  All Categories ({totalProductCount})
+                </Link>
               </li>
-              {mockCategories.map((cat) => (
+              {categories.map((cat) => (
                 <li key={cat.slug}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCategory(cat.slug)}
+                  <Link
+                    href={buildHref({ category: selectedCategory === cat.slug ? undefined : cat.slug })}
                     className={`hover:text-white transition-colors ${selectedCategory === cat.slug ? "text-white font-bold" : ""}`}
                   >
                     {cat.name} ({cat.count})
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -195,23 +176,21 @@ export default function ShopPage() {
             </h3>
             <ul className="space-y-2 text-xs font-sans text-zinc-400">
               <li>
-                <button
-                  type="button"
-                  onClick={() => setSelectedCollection("all")}
+                <Link
+                  href={buildHref({ collection: undefined })}
                   className={`hover:text-white transition-colors ${selectedCollection === "all" ? "text-white font-bold" : ""}`}
                 >
                   All Collections
-                </button>
+                </Link>
               </li>
-              {mockCollections.map((col) => (
+              {collections.map((col) => (
                 <li key={col.slug}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCollection(col.slug)}
+                  <Link
+                    href={buildHref({ collection: selectedCollection === col.slug ? undefined : col.slug })}
                     className={`hover:text-white transition-colors ${selectedCollection === col.slug ? "text-white font-bold" : ""}`}
                   >
                     {col.title}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -223,17 +202,16 @@ export default function ShopPage() {
               SIZES
             </h3>
             <div className="flex flex-wrap gap-2">
-              {["XS", "S", "M", "L", "XL"].map((sz) => (
-                <button
+              {sizes.map((sz) => (
+                <Link
                   key={sz}
-                  type="button"
-                  onClick={() => setSelectedSize(selectedSize === sz ? "all" : sz)}
+                  href={buildHref({ size: selectedSize === sz ? undefined : sz })}
                   className={`clay-chip text-xs font-mono px-3 py-1.5 ${
                     selectedSize === sz ? "clay-chip-active text-white border-white/40" : ""
                   }`}
                 >
                   {sz}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -244,17 +222,14 @@ export default function ShopPage() {
               COLORS
             </h3>
             <div className="space-y-2 text-xs font-sans text-zinc-400">
-              {["Obsidian", "Crimson", "Silver", "Charcoal"].map((c) => (
-                <button
+              {colors.map((c) => (
+                <Link
                   key={c}
-                  type="button"
-                  onClick={() => setSelectedColor(selectedColor === c.toLowerCase() ? "all" : c.toLowerCase())}
-                  className={`block hover:text-white transition-colors ${
-                    selectedColor === c.toLowerCase() ? "text-white font-bold" : ""
-                  }`}
+                  href={buildHref({ color: selectedColor === c ? undefined : c })}
+                  className={`block hover:text-white transition-colors ${selectedColor === c ? "text-white font-bold" : ""}`}
                 >
                   {c}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -262,86 +237,28 @@ export default function ShopPage() {
 
         {/* Product Cards Grid */}
         <main className="lg:col-span-9">
-          {filteredProducts.length === 0 ? (
+          {products.length === 0 ? (
             <div className="py-24 text-center border border-white/10 bg-[#0c0c0c] p-8">
               <p className="font-gothic text-3xl text-zinc-300 mb-2">No matching garments</p>
               <p className="text-xs font-mono text-zinc-500 mb-6">
                 Try clearing active category or size filters.
               </p>
-              <button
-                type="button"
-                onClick={clearAllFilters}
+              <Link
+                href="/shop"
                 className="clay-button-primary px-6 py-3 text-xs font-mono uppercase tracking-widest inline-flex items-center gap-2"
               >
                 <RefreshCw className="w-3.5 h-3.5" /> CLEAR FILTERS
-              </button>
+              </Link>
             </div>
           ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {filteredProducts.slice(0, visibleCount).map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-
-              {/* Load More Pagination */}
-              {visibleCount < filteredProducts.length && (
-                <div className="mt-16 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setVisibleCount((prev) => prev + 4)}
-                    className="clay-button-secondary px-8 py-3.5 text-xs font-mono uppercase tracking-widest"
-                  >
-                    LOAD MORE GARMENTS ({filteredProducts.length - visibleCount} REMAINING)
-                  </button>
-                </div>
-              )}
-            </>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           )}
         </main>
       </div>
-
-      {/* Mobile Filter Drawer (PRD 4.6) */}
-      {mobileFilterOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setMobileFilterOpen(false)} />
-          <div className="relative bg-[#0d0d0d] border-t border-white/20 p-6 z-10 max-h-[85vh] overflow-y-auto space-y-6 animate-slide-up">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <h3 className="font-mono text-sm uppercase tracking-widest text-white">FILTERS &amp; SORT</h3>
-              <button type="button" onClick={() => setMobileFilterOpen(false)} className="text-zinc-400 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Size filter inside mobile drawer */}
-            <div>
-              <h4 className="text-xs font-mono text-zinc-400 mb-3">SIZES</h4>
-              <div className="flex flex-wrap gap-2">
-                {["XS", "S", "M", "L", "XL"].map((sz) => (
-                  <button
-                    key={sz}
-                    type="button"
-                    onClick={() => setSelectedSize(selectedSize === sz ? "all" : sz)}
-                    className={`clay-chip text-xs font-mono px-3 py-1.5 ${
-                      selectedSize === sz ? "clay-chip-active text-white" : ""
-                    }`}
-                  >
-                    {sz}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setMobileFilterOpen(false)}
-              className="w-full clay-button-primary py-3.5 text-xs font-mono uppercase tracking-widest"
-            >
-              APPLY FILTERS ({filteredProducts.length})
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

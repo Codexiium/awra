@@ -6,6 +6,7 @@ import { Heart, ShoppingBag, Check } from "lucide-react";
 import ProductImage from "./ProductImage";
 import { useWishlistStore } from "@/app/store/useWishlistStore";
 import { useCartStore } from "@/app/store/useCartStore";
+import { formatPrice } from "@/lib/format";
 import type { Product } from "@/app/types";
 
 interface ProductCardProps {
@@ -141,11 +142,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="mt-3 pt-2 border-t border-white/5 flex items-baseline justify-between">
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-mono font-medium text-zinc-100">
-              ${product.price}
+              {formatPrice(product.price)}
             </span>
             {product.compareAtPrice && (
               <span className="text-xs font-mono text-zinc-500 line-through">
-                ${product.compareAtPrice}
+                {formatPrice(product.compareAtPrice)}
               </span>
             )}
           </div>
