@@ -26,9 +26,13 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const isAuthed = !!data?.claims;
 
-  if (!isAuthed && request.nextUrl.pathname.startsWith("/account")) {
+  const requiresAuth = request.nextUrl.pathname.startsWith("/account") || request.nextUrl.pathname.startsWith("/checkout");
+  if (!isAuthed && requiresAuth) {
     const url = request.nextUrl.clone();
+    const next = url.pathname + url.search;
     url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("next", next);
     return NextResponse.redirect(url);
   }
 

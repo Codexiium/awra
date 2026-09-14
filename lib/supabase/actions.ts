@@ -10,6 +10,7 @@ export interface AuthActionState {
 export async function signIn(_prevState: AuthActionState, formData: FormData): Promise<AuthActionState> {
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
+  const next = String(formData.get("next") || "/account");
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -17,7 +18,7 @@ export async function signIn(_prevState: AuthActionState, formData: FormData): P
     return { error: error.message };
   }
 
-  redirect("/account");
+  redirect(next.startsWith("/") ? next : "/account");
 }
 
 export interface SignUpActionState {

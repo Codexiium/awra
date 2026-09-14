@@ -1,8 +1,36 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { CheckCircle2, ArrowRight, Package } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { formatPrice } from "@/lib/format";
 
-export default function OrderSuccessPage() {
-  const orderId = "ARWA-89412";
+interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+function firstParam(param: string | string[] | undefined): string | undefined {
+  return Array.isArray(param) ? param[0] : param;
+}
+
+export default async function OrderSuccessPage(props: PageProps<"/checkout/success">) {
+  const sp = await props.searchParams;
+  const orderNumber = firstParam(sp.order);
+  if (!orderNumber) notFound();
+
+  const supabase = await createClient();
+  const { data: order } = await supabase
+    .from("orders")
+    .select("order_number, total, payment_status, shipping_address, created_at")
+    .eq("order_number", orderNumber)
+    .maybeSingle();
+
+  if (!order || order.payment_status !== "paid") notFound();
+
+  const address = order.shipping_address as unknown as ShippingAddress;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-20 text-center">
@@ -11,7 +39,7 @@ export default function OrderSuccessPage() {
       </div>
 
       <span className="text-xs font-mono text-emerald-400 uppercase tracking-widest block mb-2 font-bold">
-        ORDER CONFIRMED · FRONTEND DEMO
+        ORDER CONFIRMED
       </span>
 
       <h1 className="font-gothic text-4xl sm:text-5xl text-white tracking-widest uppercase mb-4">
@@ -19,25 +47,27 @@ export default function OrderSuccessPage() {
       </h1>
 
       <p className="text-xs font-mono text-zinc-400 max-w-md mx-auto mb-8 leading-relaxed">
-        Your archival order reference is <strong className="text-white">{orderId}</strong>. A confirmation email with express DHL air freight tracking details has been sent to your address.
+        Your archival order reference is <strong className="text-white">{order.order_number}</strong>.
       </p>
 
       <div className="p-6 bg-[#0f0f0f] border border-white/10 text-left font-mono text-xs space-y-4 mb-8">
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <span className="text-zinc-500">ORDER NUMBER:</span>
-          <span className="text-white font-bold">{orderId}</span>
+          <span className="text-white font-bold">{order.order_number}</span>
         </div>
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
-          <span className="text-zinc-500">ESTIMATED DELIVERY:</span>
-          <span className="text-white font-bold">SEP 11, 2026 (EXPRESS AIR)</span>
+          <span className="text-zinc-500">ORDER TOTAL:</span>
+          <span className="text-white font-bold">{formatPrice(order.total)}</span>
         </div>
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
           <span className="text-zinc-500">PAYMENT STATUS:</span>
-          <span className="text-emerald-400 font-bold">MOCK APPROVED (DEMO)</span>
+          <span className="text-emerald-400 font-bold">PAID</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-zinc-500">SHIPPING DESTINATION:</span>
-          <span className="text-white">NEW YORK, NY 10012, US</span>
+          <span className="text-white">
+            {address.city}, {address.postalCode}, {address.country}
+          </span>
         </div>
       </div>
 

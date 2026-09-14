@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { signIn, type AuthActionState } from "@/lib/supabase/actions";
 
@@ -9,6 +10,8 @@ const initialState: AuthActionState = { error: null };
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(signIn, initialState);
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/account";
 
   return (
     <div className="max-w-md mx-auto px-4 py-20">
@@ -22,6 +25,7 @@ export default function LoginPage() {
       </div>
 
       <form action={formAction} className="p-8 bg-[#0f0f0f] border border-white/15 space-y-6">
+        <input type="hidden" name="next" value={next} />
         <div>
           <label className="block text-xs font-mono text-zinc-400 uppercase mb-2">EMAIL ADDRESS</label>
           <input
