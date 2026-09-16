@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
+import { orderStatusLabel, orderStatusTextClass } from "@/lib/orders/status";
 
 export default async function AccountOverviewPage() {
   const supabase = await createClient();
@@ -71,7 +72,9 @@ export default async function AccountOverviewPage() {
                 </div>
                 <div className="text-right">
                   <span className="text-white font-bold block">{formatPrice(ord.total)}</span>
-                  <span className="text-[10px] text-emerald-400 uppercase">{ord.status}</span>
+                  <span className={`text-[10px] uppercase ${orderStatusTextClass(ord.status)}`}>
+                    {orderStatusLabel(ord.status)}
+                  </span>
                 </div>
               </div>
             ))}

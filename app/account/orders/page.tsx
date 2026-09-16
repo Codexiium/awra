@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
+import { orderStatusLabel, orderStatusPillClass } from "@/lib/orders/status";
 
 export default async function AccountOrdersPage() {
   const supabase = await createClient();
@@ -26,9 +27,7 @@ export default async function AccountOrdersPage() {
                   <span className="text-[10px] text-zinc-500">PLACED ON {new Date(ord.created_at).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="px-2.5 py-1 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[10px] uppercase font-bold">
-                    {ord.status}
-                  </span>
+                  <span className={orderStatusPillClass(ord.status)}>{orderStatusLabel(ord.status)}</span>
                   <span className="text-white font-bold text-sm">{formatPrice(ord.total)}</span>
                 </div>
               </div>

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
+import { orderStatusLabel, orderStatusPillClass } from "@/lib/orders/status";
 
 export default async function OrderDetailPage(props: PageProps<"/account/orders/[id]">) {
   const { id } = await props.params;
@@ -10,7 +11,9 @@ export default async function OrderDetailPage(props: PageProps<"/account/orders/
 
   const { data: order } = await supabase
     .from("orders")
-    .select("order_number, created_at, status, order_items(id, product_name, size, qty, unit_price)")
+    .select(
+      "order_number, created_at, status, tracking_carrier, tracking_number, tracking_url, shipped_at, order_items(id, product_name, size, qty, unit_price)"
+    )
     .eq("order_number", id)
     .single();
 
@@ -30,10 +33,29 @@ export default async function OrderDetailPage(props: PageProps<"/account/orders/
             <h2 className="text-xl text-white font-bold">{order.order_number}</h2>
             <span className="text-zinc-500">ORDERED ON {new Date(order.created_at).toLocaleDateString()}</span>
           </div>
-          <span className="px-3 py-1 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold uppercase self-start">
-            {order.status}
-          </span>
+          <span className={`self-start ${orderStatusPillClass(order.status)}`}>{orderStatusLabel(order.status)}</span>
         </div>
+
+        {order.tracking_number && (
+          <div className="p-3 bg-violet-950/30 border border-violet-500/30 flex items-start gap-2">
+            <Truck className="w-4 h-4 text-violet-300 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-violet-300 font-bold">
+                {order.tracking_carrier} · {order.tracking_number}
+              </p>
+              {order.tracking_url && (
+                <a href={order.tracking_url} target="_blank" rel="noreferrer" className="text-violet-400 underline">
+                  TRACK SHIPMENT
+                </a>
+              )}
+              {order.shipped_at && (
+                <p className="text-[10px] text-zinc-500 mt-1">
+                  SHIPPED ON {new Date(order.shipped_at).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-4">
           <h3 className="text-zinc-400 uppercase font-bold">ITEMS ORDERED</h3>

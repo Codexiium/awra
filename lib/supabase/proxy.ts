@@ -26,7 +26,10 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const isAuthed = !!data?.claims;
 
-  const requiresAuth = request.nextUrl.pathname.startsWith("/account") || request.nextUrl.pathname.startsWith("/checkout");
+  const requiresAuth =
+    request.nextUrl.pathname.startsWith("/account") ||
+    request.nextUrl.pathname.startsWith("/checkout") ||
+    request.nextUrl.pathname.startsWith("/admin");
   if (!isAuthed && requiresAuth) {
     const url = request.nextUrl.clone();
     const next = url.pathname + url.search;

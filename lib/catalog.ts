@@ -1,5 +1,8 @@
 import { createClient } from "./supabase/server";
 import type { AspectRatio, Product } from "@/app/types";
+import { getPublicImageUrl } from "@/lib/storage";
+
+export { getPublicImageUrl };
 
 const PRODUCT_SELECT = `
   id, slug, name, price, compare_at_price, description, availability, badges,
@@ -39,10 +42,6 @@ interface ProductRow {
   care: string;
   product_images: ProductImageRow[];
   product_variants: ProductVariantRow[];
-}
-
-export function getPublicImageUrl(storagePath: string) {
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images/${storagePath}`;
 }
 
 function mapImage(img?: ProductImageRow) {
