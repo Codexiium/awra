@@ -41,7 +41,7 @@ export default function CheckoutForm({
   initialPostalCode,
   initialCountry
 }: CheckoutFormProps) {
-  const { cart, promoCode, getSubtotal, getDiscountAmount, getShippingCost, getGrandTotal } = useCartStore();
+  const { cart, promoCode, getSubtotal, getDiscountAmount, getShippingCost, getGstAmount, getGrandTotal } = useCartStore();
 
   const [formData, setFormData] = useState<ContactShippingData>({
     email: initialEmail,
@@ -62,6 +62,7 @@ export default function CheckoutForm({
   const subtotal = getSubtotal();
   const discount = getDiscountAmount();
   const shipping = getShippingCost();
+  const gst = getGstAmount();
   const grandTotal = getGrandTotal();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -348,6 +349,10 @@ export default function CheckoutForm({
               <div className="flex justify-between">
                 <span>EXPRESS SHIPPING</span>
                 <span>{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>GST (5%)</span>
+                <span>{formatPrice(gst)}</span>
               </div>
               <div className="flex justify-between text-base font-bold text-white pt-2 border-t border-white/10">
                 <span>TOTAL DUE</span>

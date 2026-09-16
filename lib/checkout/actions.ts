@@ -70,7 +70,10 @@ export async function placeOrder(_prevState: PlaceOrderState, formData: FormData
   }
   const discountAmount = Math.round(((subtotal * discountPercent) / 100) * 100) / 100;
   const shippingCost = subtotal >= 250 ? 0 : 25;
-  const total = Math.max(0, subtotal - discountAmount + shippingCost);
+  const preTaxTotal = Math.max(0, subtotal - discountAmount + shippingCost);
+  const GST_RATE = 0.05;
+  const gstAmount = Math.round(preTaxTotal * GST_RATE * 100) / 100;
+  const total = preTaxTotal + gstAmount;
 
   const shippingAddress = {
     firstName: String(formData.get("firstName") || "").trim(),
@@ -98,6 +101,7 @@ export async function placeOrder(_prevState: PlaceOrderState, formData: FormData
       subtotal,
       discount_amount: discountAmount,
       shipping_cost: shippingCost,
+      gst_amount: gstAmount,
       total,
       promo_code: promoCode || null,
       shipping_address: shippingAddress

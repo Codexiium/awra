@@ -26,8 +26,11 @@ interface CartState {
   getSubtotal: () => number;
   getDiscountAmount: () => number;
   getShippingCost: () => number;
+  getGstAmount: () => number;
   getGrandTotal: () => number;
 }
+
+const GST_RATE = 0.05;
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -126,11 +129,20 @@ export const useCartStore = create<CartState>()(
         return subtotal >= 250 ? 0 : 25;
       },
 
+      getGstAmount: () => {
+        const subtotal = get().getSubtotal();
+        const discount = get().getDiscountAmount();
+        const shipping = get().getShippingCost();
+        const preTaxTotal = Math.max(0, subtotal - discount + shipping);
+        return Math.round(preTaxTotal * GST_RATE * 100) / 100;
+      },
+
       getGrandTotal: () => {
         const subtotal = get().getSubtotal();
         const discount = get().getDiscountAmount();
         const shipping = get().getShippingCost();
-        return Math.max(0, subtotal - discount + shipping);
+        const preTaxTotal = Math.max(0, subtotal - discount + shipping);
+        return preTaxTotal + get().getGstAmount();
       }
     }),
     {

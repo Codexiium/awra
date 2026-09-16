@@ -97,28 +97,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 2. NEW COLLECTION EDITORIAL STATEMENT (PRD 8.1 #4) */}
-      <section className="py-20 border-b border-white/10 bg-[#0a0a0a]">
-        <div className="max-w-5xl mx-auto px-4 text-center">
-          <span className="text-xs font-mono text-zinc-500 uppercase tracking-[0.3em] block mb-3">
-            ARCHIVAL MANIFESTO
-          </span>
-          <h2 className="font-cinzel text-2xl sm:text-4xl text-zinc-100 font-bold tracking-wider leading-snug mb-6">
-            &quot;WHERE GOTHIC ARCHITECTURE MEETS TACTICAL REBELLION.&quot;
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 font-sans max-w-2xl mx-auto leading-relaxed mb-8">
-            Every garment in Drop 04 is constructed with heavy 500-650 GSM cotton canvas, reinforced seams, and solid oxidized silver hardware meant to age with character over decades.
-          </p>
-          <Link
-            href="/about"
-            className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-zinc-300 hover:text-white border-b border-zinc-500 hover:border-white pb-1 transition-all"
-          >
-            <span>READ OUR BRAND PHILOSOPHY</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </section>
-
       {/* 3. FEATURED PRODUCTS GRID (PRD 8.1 #5) */}
       <section className="py-24 border-b border-white/10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">

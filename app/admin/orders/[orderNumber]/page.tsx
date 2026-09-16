@@ -23,7 +23,7 @@ export default async function AdminOrderDetailPage(props: PageProps<"/admin/orde
   const { data: order } = await admin
     .from("orders")
     .select(
-      "order_number, user_id, created_at, status, payment_status, subtotal, discount_amount, shipping_cost, total, promo_code, shipping_address, tracking_carrier, tracking_number, tracking_url, shipped_at, delivered_at, order_items(id, product_name, size, color_name, unit_price, qty), payments(id, provider, provider_reference, status, amount)"
+      "order_number, user_id, created_at, status, payment_status, subtotal, discount_amount, shipping_cost, gst_amount, total, promo_code, shipping_address, tracking_carrier, tracking_number, tracking_url, shipped_at, delivered_at, order_items(id, product_name, size, color_name, unit_price, qty), payments(id, provider, provider_reference, status, amount)"
     )
     .eq("order_number", orderNumber)
     .maybeSingle();
@@ -116,6 +116,10 @@ export default async function AdminOrderDetailPage(props: PageProps<"/admin/orde
             <div className="flex justify-between text-zinc-400">
               <span>SHIPPING</span>
               <span>{order.shipping_cost > 0 ? formatPrice(order.shipping_cost) : "FREE"}</span>
+            </div>
+            <div className="flex justify-between text-zinc-400">
+              <span>GST (5%)</span>
+              <span>{formatPrice(order.gst_amount)}</span>
             </div>
             <div className="flex justify-between text-white font-bold text-sm pt-2 border-t border-white/10">
               <span>TOTAL</span>

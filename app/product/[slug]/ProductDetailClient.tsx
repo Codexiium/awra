@@ -26,9 +26,9 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   const [selectedSize, setSelectedSize] = useState(
     product.sizes?.find((s) => s.available)?.size || "M"
   );
-  const [selectedColor, setSelectedColor] = useState(
-    product.colors?.[0]?.name || "Obsidian Black"
-  );
+  // No customer-facing color selection — each variant row still tracks its
+  // own color/stock internally, so default to the product's first color.
+  const selectedColor = product.colors?.[0]?.name || "Obsidian Black";
   const [quantity, setQuantity] = useState(1);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [added, setAdded] = useState(false);
@@ -38,6 +38,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   const { wishlist, toggleWishlist } = useWishlistStore();
 
   const isSaved = wishlist.some((item) => item.id === product.id);
+  const isOutOfStock = product.availability === "out_of_stock";
 
   // Gallery array
   const galleryImages: ProductImageAsset[] = [
@@ -131,8 +132,20 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   {formatPrice(product.compareAtPrice)}
                 </span>
               )}
-              <span className="text-xs font-mono text-emerald-400 ml-auto uppercase">
-                IN STOCK · READY TO SHIP
+              <span
+                className={`text-xs font-mono ml-auto uppercase ${
+                  product.availability === "out_of_stock"
+                    ? "text-red-400"
+                    : product.availability === "low_stock"
+                    ? "text-amber-400"
+                    : "text-emerald-400"
+                }`}
+              >
+                {product.availability === "out_of_stock"
+                  ? "OUT OF STOCK"
+                  : product.availability === "low_stock"
+                  ? "LOW STOCK"
+                  : "IN STOCK · READY TO SHIP"}
               </span>
             </div>
 
@@ -140,27 +153,6 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             <p className="text-xs sm:text-sm text-zinc-300 font-sans leading-relaxed mb-6">
               {product.description}
             </p>
-
-            {/* Color Swatches */}
-            <div className="mb-6">
-              <span className="text-xs font-mono uppercase tracking-widest text-zinc-400 block mb-2">
-                COLOR: <strong className="text-white">{selectedColor}</strong>
-              </span>
-              <div className="flex items-center gap-3">
-                {product.colors?.map((col, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setSelectedColor(col.name)}
-                    className={`w-7 h-7 rounded-full border-2 transition-all p-0.5 ${
-                      selectedColor === col.name ? "border-white scale-110" : "border-white/20 opacity-70 hover:opacity-100"
-                    }`}
-                  >
-                    <span className="block w-full h-full rounded-full" style={{ backgroundColor: col.hex }} />
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* Size Selector Grid Chips (PRD 11.3) */}
             <div className="mb-8">
@@ -234,9 +226,12 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="w-full clay-button-primary py-4 text-xs font-mono uppercase tracking-widest flex items-center justify-center gap-2"
+                disabled={isOutOfStock}
+                className="w-full clay-button-primary py-4 text-xs font-mono uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {added ? (
+                {isOutOfStock ? (
+                  "OUT OF STOCK"
+                ) : added ? (
                   <>
                     <Check className="w-4 h-4" /> ADDED TO BAG
                   </>
@@ -251,7 +246,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               <button
                 type="button"
                 onClick={handleBuyNow}
-                className="w-full clay-button-secondary py-3.5 text-xs font-mono uppercase tracking-widest"
+                disabled={isOutOfStock}
+                className="w-full clay-button-secondary py-3.5 text-xs font-mono uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 BUY NOW (EXPRESS CHECKOUT)
               </button>

@@ -27,7 +27,7 @@ export default function AddressForm({
   initialCity = "",
   initialState: initialRegion = "",
   initialPostalCode = "",
-  initialCountry = "",
+  initialCountry = "India",
   initialIsDefault = false,
   submitLabel,
   onDone

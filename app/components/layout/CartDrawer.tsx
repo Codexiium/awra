@@ -17,6 +17,7 @@ export default function CartDrawer() {
     getSubtotal,
     getDiscountAmount,
     getShippingCost,
+    getGstAmount,
     getGrandTotal,
     discountPercent,
     applyPromoCode
@@ -30,6 +31,7 @@ export default function CartDrawer() {
   const subtotal = getSubtotal();
   const discount = getDiscountAmount();
   const shipping = getShippingCost();
+  const gst = getGstAmount();
   const grandTotal = getGrandTotal();
 
   const freeShippingThreshold = 250;
@@ -151,8 +153,6 @@ export default function CartDrawer() {
 
                     <div className="text-[11px] font-mono text-zinc-400 mt-1 flex items-center gap-2">
                       <span>SIZE: {item.selectedSize}</span>
-                      <span>·</span>
-                      <span>COLOR: {item.selectedColor}</span>
                     </div>
                   </div>
 
@@ -233,6 +233,11 @@ export default function CartDrawer() {
               <div className="flex items-center justify-between">
                 <span>ESTIMATED SHIPPING</span>
                 <span>{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span>GST (5%)</span>
+                <span>{formatPrice(gst)}</span>
               </div>
 
               <div className="flex items-center justify-between text-sm font-bold text-white pt-2 border-t border-white/10">

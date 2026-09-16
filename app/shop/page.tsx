@@ -9,7 +9,6 @@ type SortOption = "newest" | "price-low" | "price-high" | "best-selling" | "alph
 
 interface FilterOverrides {
   size?: string;
-  color?: string;
   sort?: string;
 }
 
@@ -20,13 +19,11 @@ function firstParam(param: string | string[] | undefined): string | undefined {
 export default async function ShopPage(props: PageProps<"/shop">) {
   const sp = await props.searchParams;
   const selectedSize = firstParam(sp.size) ?? "all";
-  const selectedColor = firstParam(sp.color) ?? "all";
   const sortBy = (firstParam(sp.sort) as SortOption) ?? "newest";
 
-  const [products, { sizes, colors }] = await Promise.all([
+  const [products, { sizes }] = await Promise.all([
     getProducts({
       size: selectedSize !== "all" ? selectedSize : undefined,
-      color: selectedColor !== "all" ? selectedColor : undefined,
       sort: sortBy
     }),
     getDistinctSizesAndColors()
@@ -35,19 +32,17 @@ export default async function ShopPage(props: PageProps<"/shop">) {
   function buildHref(overrides: FilterOverrides) {
     const next = {
       size: selectedSize,
-      color: selectedColor,
       sort: sortBy,
       ...overrides
     };
     const params = new URLSearchParams();
     if (next.size && next.size !== "all") params.set("size", next.size);
-    if (next.color && next.color !== "all") params.set("color", next.color);
     if (next.sort && next.sort !== "newest") params.set("sort", next.sort);
     const qs = params.toString();
     return qs ? `/shop?${qs}` : "/shop";
   }
 
-  const hasActiveFilters = selectedSize !== "all" || selectedColor !== "all";
+  const hasActiveFilters = selectedSize !== "all";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -98,13 +93,6 @@ export default async function ShopPage(props: PageProps<"/shop">) {
               <X className="w-3 h-3" />
             </Link>
           )}
-          {selectedColor !== "all" && (
-            <Link href={buildHref({ color: undefined })} className="clay-chip text-xs font-mono px-3 py-1 flex items-center gap-1.5 text-zinc-200">
-              Color: {selectedColor}
-              <X className="w-3 h-3" />
-            </Link>
-          )}
-
           <Link href="/shop" className="text-xs font-mono text-zinc-400 hover:text-white underline ml-auto">
             CLEAR ALL
           </Link>
@@ -130,24 +118,6 @@ export default async function ShopPage(props: PageProps<"/shop">) {
                   }`}
                 >
                   {sz}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Color Swatch Filters */}
-          <div>
-            <h3 className="text-xs font-mono uppercase tracking-widest text-zinc-200 mb-4 pb-1 border-b border-white/10 font-bold">
-              COLORS
-            </h3>
-            <div className="space-y-2 text-xs font-sans text-zinc-400">
-              {colors.map((c) => (
-                <Link
-                  key={c}
-                  href={buildHref({ color: selectedColor === c ? undefined : c })}
-                  className={`block hover:text-white transition-colors ${selectedColor === c ? "text-white font-bold" : ""}`}
-                >
-                  {c}
                 </Link>
               ))}
             </div>

@@ -5,8 +5,7 @@ export const mockProducts: Product[] = [
     id: "prod-1",
     slug: "cathedral-oversized-trench",
     name: "001",
-    price: 680,
-    compareAtPrice: 820,
+    price: 599,
     description: "Heavyweight coated technical cotton canvas trench coat with floor-length asymmetrical hem, sharp structured shoulders, oxidized silver hardware, and interior harness straps. Cotton printed tshirt oversized gothic wear.",
     images: {
       primary: { src: null, alt: "Cathedral Oversized Trench Front View", aspectRatio: "4:5" },
@@ -41,7 +40,7 @@ export const mockProducts: Product[] = [
     id: "prod-2",
     slug: "nocturnal-spiky-heavy-hoodie",
     name: "002",
-    price: 340,
+    price: 599,
     description: "Double-walled 650 GSM French terry hoodie with gothic metal eyelets, spiky silver drawstrings, elongated sleeves, and raw distressed distressed ribbing. Cotton printed tshirt oversized gothic wear.",
     images: {
       primary: { src: null, alt: "Nocturnal Spiky Heavy Hoodie Front", aspectRatio: "4:5" },
@@ -76,8 +75,7 @@ export const mockProducts: Product[] = [
     id: "prod-3",
     slug: "gothic-archival-cargo-pants",
     name: "003",
-    price: 420,
-    compareAtPrice: 490,
+    price: 599,
     description: "Multi-pocket technical cargo pants featuring 14 expandable compartments, adjustable leg straps with spiky metallic buckles, and reinforced knees. Cotton printed tshirt oversized gothic wear.",
     images: {
       primary: { src: null, alt: "Gothic Archival Cargo Pants Front", aspectRatio: "4:5" },
@@ -111,7 +109,7 @@ export const mockProducts: Product[] = [
     id: "prod-4",
     slug: "cyber-gothic-platform-boots",
     name: "004",
-    price: 520,
+    price: 599,
     description: "High-top combat boots in full-grain Italian leather with 75mm chunky treaded platform, spiky metallic heel plate, and side zipper entry. Cotton printed tshirt oversized gothic wear.",
     images: {
       primary: { src: null, alt: "Cyber Gothic Platform Boots Pair", aspectRatio: "4:5" },
@@ -122,11 +120,11 @@ export const mockProducts: Product[] = [
       ]
     },
     sizes: [
-      { size: "EU 40", available: true },
-      { size: "EU 41", available: true },
-      { size: "EU 42", available: true },
-      { size: "EU 43", available: true },
-      { size: "EU 44", available: false }
+      { size: "S", available: true },
+      { size: "M", available: true },
+      { size: "L", available: true },
+      { size: "XL", available: true },
+      { size: "XXL", available: false }
     ],
     colors: [
       { name: "Matte Black", hex: "#121212" },

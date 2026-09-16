@@ -28,9 +28,12 @@ export default function ProductCard({ product }: ProductCardProps) {
     toggleWishlist(product);
   };
 
+  const isOutOfStock = product.availability === "out_of_stock";
+
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isOutOfStock) return;
     // Default to first available size
     const availableSizeObj = product.sizes?.find((s) => s.available) || { size: "M", available: true };
     const defaultColor = product.colors?.[0]?.name || "Obsidian Black";
@@ -69,6 +72,11 @@ export default function ProductCard({ product }: ProductCardProps) {
               Low Stock
             </span>
           )}
+          {product.availability === "out_of_stock" && (
+            <span className="bg-red-950/80 border border-red-500/40 text-red-300 text-[9px] uppercase font-mono tracking-widest px-2 py-0.5">
+              Out of Stock
+            </span>
+          )}
         </div>
 
         {/* Top Right Wishlist Button */}
@@ -94,9 +102,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             type="button"
             onClick={handleQuickAdd}
-            className="w-full clay-button-primary py-2 px-3 text-xs uppercase font-mono tracking-wider flex items-center justify-center gap-2"
+            disabled={isOutOfStock}
+            className="w-full clay-button-primary py-2 px-3 text-xs uppercase font-mono tracking-wider flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {addedQuick ? (
+            {isOutOfStock ? (
+              "Out of Stock"
+            ) : addedQuick ? (
               <>
                 <Check className="w-3.5 h-3.5" /> Added to Bag
               </>
@@ -112,20 +123,6 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Product Content Details */}
       <div className="p-4 flex flex-col flex-1 justify-between bg-[#0e0e0e]">
         <div>
-          {/* Color swatches */}
-          <div className="flex items-center justify-end mb-1">
-            <div className="flex items-center gap-1">
-              {product.colors?.map((col, idx) => (
-                <span
-                  key={idx}
-                  title={col.name}
-                  className="w-2.5 h-2.5 rounded-full border border-white/20"
-                  style={{ backgroundColor: col.hex }}
-                />
-              ))}
-            </div>
-          </div>
-
           {/* Title */}
           <Link href={`/product/${product.slug}`}>
             <h3 className="text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors line-clamp-1 tracking-wide mb-1 font-sans">

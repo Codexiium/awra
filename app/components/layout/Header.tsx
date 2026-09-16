@@ -85,7 +85,7 @@ export default function Header() {
               </Link>
 
               <Link href="/about" className="hover:text-white transition-colors">
-                MANIFESTO
+                ABOUT
               </Link>
             </nav>
           </div>

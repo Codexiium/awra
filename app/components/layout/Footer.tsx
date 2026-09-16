@@ -130,11 +130,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h5 className="font-mono text-zinc-200 uppercase tracking-widest mb-4">MANIFESTO</h5>
+            <h5 className="font-mono text-zinc-200 uppercase tracking-widest mb-4">ABOUT</h5>
             <ul className="space-y-2.5 font-sans">
               <li>
                 <Link href="/about" className="hover:text-white transition-colors">
-                  Brand Philosophy
+                  Our Story
                 </Link>
               </li>
               <li>

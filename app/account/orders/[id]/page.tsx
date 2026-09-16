@@ -12,7 +12,7 @@ export default async function OrderDetailPage(props: PageProps<"/account/orders/
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "order_number, created_at, status, tracking_carrier, tracking_number, tracking_url, shipped_at, order_items(id, product_name, size, qty, unit_price)"
+      "order_number, created_at, status, tracking_carrier, tracking_number, tracking_url, shipped_at, subtotal, discount_amount, shipping_cost, gst_amount, total, promo_code, order_items(id, product_name, size, qty, unit_price)"
     )
     .eq("order_number", id)
     .single();
@@ -68,6 +68,31 @@ export default async function OrderDetailPage(props: PageProps<"/account/orders/
               <span className="font-bold">{formatPrice(item.unit_price)}</span>
             </div>
           ))}
+        </div>
+
+        <div className="space-y-1 pt-2">
+          <div className="flex justify-between text-zinc-400">
+            <span>SUBTOTAL</span>
+            <span>{formatPrice(order.subtotal)}</span>
+          </div>
+          {order.discount_amount > 0 && (
+            <div className="flex justify-between text-emerald-400">
+              <span>DISCOUNT {order.promo_code ? `(${order.promo_code})` : ""}</span>
+              <span>-{formatPrice(order.discount_amount)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-zinc-400">
+            <span>SHIPPING</span>
+            <span>{order.shipping_cost > 0 ? formatPrice(order.shipping_cost) : "FREE"}</span>
+          </div>
+          <div className="flex justify-between text-zinc-400">
+            <span>GST (5%)</span>
+            <span>{formatPrice(order.gst_amount)}</span>
+          </div>
+          <div className="flex justify-between text-white font-bold text-sm pt-2 border-t border-white/10">
+            <span>TOTAL</span>
+            <span>{formatPrice(order.total)}</span>
+          </div>
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ export default function FullCartPage() {
     getSubtotal,
     getDiscountAmount,
     getShippingCost,
+    getGstAmount,
     getGrandTotal,
     discountPercent,
     applyPromoCode
@@ -26,6 +27,7 @@ export default function FullCartPage() {
   const subtotal = getSubtotal();
   const discount = getDiscountAmount();
   const shipping = getShippingCost();
+  const gst = getGstAmount();
   const grandTotal = getGrandTotal();
 
   const handleApplyPromo = async (e: React.FormEvent) => {
@@ -98,7 +100,7 @@ export default function FullCartPage() {
                     {item.product.name}
                   </Link>
                   <p className="text-xs font-mono text-zinc-400 mt-1">
-                    SIZE: {item.selectedSize} · COLOR: {item.selectedColor}
+                    SIZE: {item.selectedSize}
                   </p>
                   <p className="text-xs font-mono text-zinc-200 mt-2 font-bold">
                     {formatPrice(item.product.price)}
@@ -187,6 +189,11 @@ export default function FullCartPage() {
               <div className="flex justify-between">
                 <span>EXPRESS SHIPPING</span>
                 <span>{shipping === 0 ? "FREE" : formatPrice(shipping)}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>GST (5%)</span>
+                <span>{formatPrice(gst)}</span>
               </div>
 
               <div className="flex justify-between text-sm font-bold text-white pt-4 border-t border-white/10">
