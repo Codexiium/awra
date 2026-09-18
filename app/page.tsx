@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import ProductImage from "./components/ui/ProductImage";
 import ProductCard from "./components/ui/ProductCard";
 import HeroEntrance from "./components/home/HeroEntrance";
@@ -75,8 +75,8 @@ export default async function Home() {
           <div className="lg:col-span-5 relative">
             <div className="relative p-2 bg-[#121212] border border-white/15 shadow-2xl">
               <ProductImage
-                src={null}
-                alt="ARWA Campaign Hero"
+                src={allProducts[0]?.images?.primary?.src ?? null}
+                alt={allProducts[0]?.name ?? "ARWA Campaign Hero"}
                 aspectRatio="3:4"
                 gothicSymbol="🕇"
                 className="w-full"
@@ -139,28 +139,6 @@ export default async function Home() {
           {bestSellerProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
-        </div>
-      </section>
-
-      {/* 7. PROMOTIONAL BANNER (PRD 8.1 #10) */}
-      <section className="py-16 border-b border-white/10 bg-gradient-to-r from-[#0d0d0d] via-[#161616] to-[#0d0d0d] text-center">
-        <div className="max-w-4xl mx-auto px-4">
-          <span className="text-xs font-mono text-zinc-400 uppercase tracking-[0.3em] block mb-2">
-            GLOBAL LOGISTICS
-          </span>
-          <h3 className="font-gothic text-3xl sm:text-4xl text-white mb-4">
-            COMPLIMENTARY EXPRESS SHIPPING OVER {formatPrice(250)}
-          </h3>
-          <p className="text-xs text-zinc-400 font-sans max-w-lg mx-auto mb-6">
-            All orders are shipped via express air freight.
-          </p>
-          <Link
-            href="/shipping-delivery"
-            className="clay-button-secondary px-6 py-3 text-xs font-mono uppercase tracking-widest inline-flex items-center gap-2"
-          >
-            <span>SHIPPING INFO &amp; RETURNS</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
         </div>
       </section>
     </div>

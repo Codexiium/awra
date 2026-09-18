@@ -26,9 +26,6 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   const [selectedSize, setSelectedSize] = useState(
     product.sizes?.find((s) => s.available)?.size || "M"
   );
-  // No customer-facing color selection — each variant row still tracks its
-  // own color/stock internally, so default to the product's first color.
-  const selectedColor = product.colors?.[0]?.name || "Obsidian Black";
   const [quantity, setQuantity] = useState(1);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [added, setAdded] = useState(false);
@@ -50,13 +47,13 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   const activeImage = galleryImages[selectedImageIndex] || product.images?.primary;
 
   const handleAddToCart = () => {
-    addItem(product, selectedSize, selectedColor, quantity);
+    addItem(product, selectedSize, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
   const handleBuyNow = () => {
-    addItem(product, selectedSize, selectedColor, quantity);
+    addItem(product, selectedSize, quantity);
     router.push("/checkout");
   };
 

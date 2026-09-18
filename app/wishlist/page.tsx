@@ -15,8 +15,7 @@ export default function WishlistPage() {
 
   const handleMoveToCart = (product: Product) => {
     const size = product.sizes?.find((s) => s.available)?.size || "M";
-    const color = product.colors?.[0]?.name || "Obsidian Black";
-    addItem(product, size, color, 1);
+    addItem(product, size, 1);
     toggleWishlist(product);
   };
 

@@ -13,7 +13,7 @@ export async function GET() {
     return NextResponse.json({ items: [] satisfies CartItem[] });
   }
 
-  const { data: rows, error } = await supabase.from("cart_items").select("product_id, size, color_name, quantity");
+  const { data: rows, error } = await supabase.from("cart_items").select("product_id, size, quantity");
   if (error || !rows || rows.length === 0) {
     return NextResponse.json({ items: [] satisfies CartItem[] });
   }
@@ -25,7 +25,7 @@ export async function GET() {
     .map((r) => {
       const product = productById.get(String(r.product_id));
       if (!product) return null;
-      return { product, selectedSize: r.size, selectedColor: r.color_name, quantity: r.quantity };
+      return { product, selectedSize: r.size, quantity: r.quantity };
     })
     .filter((item): item is CartItem => item !== null);
 

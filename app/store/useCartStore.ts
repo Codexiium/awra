@@ -15,9 +15,9 @@ interface CartState {
   closeCart: () => void;
   toggleCart: () => void;
 
-  addItem: (product: Product, selectedSize?: string, selectedColor?: string, quantity?: number) => void;
-  removeItem: (productId: string, selectedSize: string, selectedColor: string) => void;
-  updateQuantity: (productId: string, selectedSize: string, selectedColor: string, newQty: number) => void;
+  addItem: (product: Product, selectedSize?: string, quantity?: number) => void;
+  removeItem: (productId: string, selectedSize: string) => void;
+  updateQuantity: (productId: string, selectedSize: string, newQty: number) => void;
   applyPromoCode: (code: string) => Promise<PromoResult>;
   clearCart: () => void;
   clearToast: () => void;
@@ -45,10 +45,10 @@ export const useCartStore = create<CartState>()(
       closeCart: () => set({ isOpen: false }),
       toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
 
-      addItem: (product, selectedSize = "M", selectedColor = "Obsidian Black", quantity = 1) => {
+      addItem: (product, selectedSize = "M", quantity = 1) => {
         const currentCart = get().cart;
         const existingIndex = currentCart.findIndex(
-          (item) => item.product.id === product.id && item.selectedSize === selectedSize && item.selectedColor === selectedColor
+          (item) => item.product.id === product.id && item.selectedSize === selectedSize
         );
 
         let newCart: CartItem[];
@@ -58,7 +58,7 @@ export const useCartStore = create<CartState>()(
           newQuantity = newCart[existingIndex].quantity + quantity;
           newCart[existingIndex] = { ...newCart[existingIndex], quantity: newQuantity };
         } else {
-          newCart = [...currentCart, { product, selectedSize, selectedColor, quantity }];
+          newCart = [...currentCart, { product, selectedSize, quantity }];
           newQuantity = quantity;
         }
 
@@ -67,30 +67,28 @@ export const useCartStore = create<CartState>()(
           isOpen: true,
           toastMessage: `Added ${product.name} to bag`
         });
-        syncUpsertCartItem(product.id, selectedSize, selectedColor, newQuantity);
+        syncUpsertCartItem(product.id, selectedSize, newQuantity);
       },
 
-      removeItem: (productId, selectedSize, selectedColor) => {
-        const newCart = get().cart.filter(
-          (item) => !(item.product.id === productId && item.selectedSize === selectedSize && item.selectedColor === selectedColor)
-        );
+      removeItem: (productId, selectedSize) => {
+        const newCart = get().cart.filter((item) => !(item.product.id === productId && item.selectedSize === selectedSize));
         set({ cart: newCart, toastMessage: "Item removed from bag" });
-        syncRemoveCartItem(productId, selectedSize, selectedColor);
+        syncRemoveCartItem(productId, selectedSize);
       },
 
-      updateQuantity: (productId, selectedSize, selectedColor, newQty) => {
+      updateQuantity: (productId, selectedSize, newQty) => {
         if (newQty <= 0) {
-          get().removeItem(productId, selectedSize, selectedColor);
+          get().removeItem(productId, selectedSize);
           return;
         }
         const newCart = get().cart.map((item) => {
-          if (item.product.id === productId && item.selectedSize === selectedSize && item.selectedColor === selectedColor) {
+          if (item.product.id === productId && item.selectedSize === selectedSize) {
             return { ...item, quantity: newQty };
           }
           return item;
         });
         set({ cart: newCart });
-        syncUpsertCartItem(productId, selectedSize, selectedColor, newQty);
+        syncUpsertCartItem(productId, selectedSize, newQty);
       },
 
       applyPromoCode: async (code) => {

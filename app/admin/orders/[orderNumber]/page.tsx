@@ -23,7 +23,7 @@ export default async function AdminOrderDetailPage(props: PageProps<"/admin/orde
   const { data: order } = await admin
     .from("orders")
     .select(
-      "order_number, user_id, created_at, status, payment_status, subtotal, discount_amount, shipping_cost, gst_amount, total, promo_code, shipping_address, tracking_carrier, tracking_number, tracking_url, shipped_at, delivered_at, order_items(id, product_name, size, color_name, unit_price, qty), payments(id, provider, provider_reference, status, amount)"
+      "order_number, user_id, created_at, status, payment_status, subtotal, discount_amount, shipping_cost, gst_amount, total, promo_code, shipping_address, tracking_carrier, tracking_number, tracking_url, shipped_at, delivered_at, order_items(id, product_name, size, unit_price, qty), payments(id, provider, provider_reference, status, amount)"
     )
     .eq("order_number", orderNumber)
     .maybeSingle();
@@ -94,7 +94,7 @@ export default async function AdminOrderDetailPage(props: PageProps<"/admin/orde
                 <div>
                   <p className="font-bold text-white">{item.product_name}</p>
                   <p className="text-[10px] text-zinc-500">
-                    SIZE: {item.size} · COLOR: {item.color_name} · QTY: {item.qty}
+                    SIZE: {item.size} · QTY: {item.qty}
                   </p>
                 </div>
                 <span className="font-bold">{formatPrice(item.unit_price)}</span>

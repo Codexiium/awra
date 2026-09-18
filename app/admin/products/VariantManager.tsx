@@ -12,8 +12,6 @@ import {
 interface Variant {
   id: number;
   size: string;
-  color_name: string;
-  color_hex: string;
   stock_qty: number;
   available: boolean;
 }
@@ -37,10 +35,6 @@ function VariantRow({ productId, variant }: { productId: number; variant: Varian
       <input type="hidden" name="productId" value={productId} />
 
       <span className="w-14 text-white font-bold">{variant.size}</span>
-      <span className="flex items-center gap-1.5 w-28">
-        <span className="w-3 h-3 border border-white/20 shrink-0" style={{ backgroundColor: variant.color_hex }} />
-        {variant.color_name}
-      </span>
 
       <label className="flex items-center gap-1.5 text-zinc-400">
         STOCK
@@ -87,14 +81,6 @@ function AddVariantForm({ productId }: { productId: number }) {
         <input name="size" required className="clay-input w-20 px-2 py-1.5 text-xs text-white" />
       </div>
       <div>
-        <label className="block text-[10px] text-zinc-500 uppercase mb-1">COLOR NAME</label>
-        <input name="colorName" required className="clay-input w-28 px-2 py-1.5 text-xs text-white" />
-      </div>
-      <div>
-        <label className="block text-[10px] text-zinc-500 uppercase mb-1">COLOR HEX</label>
-        <input name="colorHex" placeholder="#000000" required className="clay-input w-24 px-2 py-1.5 text-xs text-white" />
-      </div>
-      <div>
         <label className="block text-[10px] text-zinc-500 uppercase mb-1">STOCK</label>
         <input name="stockQty" type="number" min="0" defaultValue={0} className="clay-input w-20 px-2 py-1.5 text-xs text-white" />
       </div>
@@ -104,7 +90,7 @@ function AddVariantForm({ productId }: { productId: number }) {
       </label>
 
       <button type="submit" disabled={pending} className="clay-button-primary px-4 py-1.5 text-[10px] uppercase disabled:opacity-60">
-        {pending ? "ADDING..." : "ADD VARIANT"}
+        {pending ? "ADDING..." : "ADD SIZE"}
       </button>
 
       {state.error && <p className="w-full text-[10px] text-red-400">{state.error}</p>}
@@ -116,7 +102,7 @@ export default function VariantManager({ productId, variants }: VariantManagerPr
   return (
     <div className="p-6 bg-[#0f0f0f] border border-white/10 space-y-3 font-mono text-xs">
       <h3 className="uppercase tracking-widest text-zinc-400 font-bold border-b border-white/10 pb-2">
-        SIZES &amp; VARIANTS ({variants.length})
+        SIZES ({variants.length})
       </h3>
 
       <div className="space-y-2">

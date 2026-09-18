@@ -3,7 +3,7 @@ import { X, RefreshCw } from "lucide-react";
 import ProductCard from "../components/ui/ProductCard";
 import SortSelect from "./SortSelect";
 import MobileFilterDrawer from "./MobileFilterDrawer";
-import { getProducts, getDistinctSizesAndColors } from "@/lib/catalog";
+import { getProducts, getDistinctSizes } from "@/lib/catalog";
 
 type SortOption = "newest" | "price-low" | "price-high" | "best-selling" | "alphabetical";
 
@@ -21,12 +21,12 @@ export default async function ShopPage(props: PageProps<"/shop">) {
   const selectedSize = firstParam(sp.size) ?? "all";
   const sortBy = (firstParam(sp.sort) as SortOption) ?? "newest";
 
-  const [products, { sizes }] = await Promise.all([
+  const [products, sizes] = await Promise.all([
     getProducts({
       size: selectedSize !== "all" ? selectedSize : undefined,
       sort: sortBy
     }),
-    getDistinctSizesAndColors()
+    getDistinctSizes()
   ]);
 
   function buildHref(overrides: FilterOverrides) {

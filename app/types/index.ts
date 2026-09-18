@@ -20,11 +20,6 @@ export interface ProductSizeOption {
   available: boolean;
 }
 
-export interface ProductColorOption {
-  name: string;
-  hex: string;
-}
-
 export type ProductBadge = "new" | "limited" | "sale";
 
 export type ProductAvailability = "in_stock" | "low_stock" | "out_of_stock";
@@ -44,7 +39,6 @@ export interface Product {
   description: string;
   images: ProductImages;
   sizes: ProductSizeOption[];
-  colors: ProductColorOption[];
   availability: ProductAvailability;
   badges: ProductBadge[];
   rating: number;
@@ -57,7 +51,6 @@ export interface Product {
 export interface CartItem {
   product: Product;
   selectedSize: string;
-  selectedColor: string;
   quantity: number;
 }
 

@@ -144,7 +144,7 @@ export default function CartDrawer() {
 
                       <button
                         type="button"
-                        onClick={() => removeItem(item.product.id, item.selectedSize, item.selectedColor)}
+                        onClick={() => removeItem(item.product.id, item.selectedSize)}
                         className="text-zinc-500 hover:text-red-400 p-0.5 transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -167,7 +167,7 @@ export default function CartDrawer() {
                       <button
                         type="button"
                         onClick={() =>
-                          updateQuantity(item.product.id, item.selectedSize, item.selectedColor, item.quantity - 1)
+                          updateQuantity(item.product.id, item.selectedSize, item.quantity - 1)
                         }
                         className="p-1.5 text-zinc-400 hover:text-white transition-colors"
                       >
@@ -177,7 +177,7 @@ export default function CartDrawer() {
                       <button
                         type="button"
                         onClick={() =>
-                          updateQuantity(item.product.id, item.selectedSize, item.selectedColor, item.quantity + 1)
+                          updateQuantity(item.product.id, item.selectedSize, item.quantity + 1)
                         }
                         className="p-1.5 text-zinc-400 hover:text-white transition-colors"
                       >

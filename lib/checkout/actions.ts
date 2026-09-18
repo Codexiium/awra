@@ -19,11 +19,17 @@ export async function placeOrder(_prevState: PlaceOrderState, formData: FormData
   }
   const userId = claims.sub;
 
+  // Cash on Delivery is the only working payment method — online payment is
+  // a disabled "coming soon" option in the UI, so reject anything else here
+  // too in case a disabled radio was bypassed client-side.
+  const paymentMethod = String(formData.get("paymentMethod") || "").trim();
+  if (paymentMethod !== "cod") {
+    return { error: "Online payment isn't available yet — please select Cash on Delivery." };
+  }
+
   // Never trust a client-submitted cart or totals — re-read the user's
   // server-persisted cart and recompute everything from it.
-  const { data: cartRows, error: cartErr } = await supabase
-    .from("cart_items")
-    .select("product_id, size, color_name, quantity");
+  const { data: cartRows, error: cartErr } = await supabase.from("cart_items").select("product_id, size, quantity");
   if (cartErr) {
     return { error: "Could not load your bag. Please try again." };
   }
@@ -44,16 +50,16 @@ export async function placeOrder(_prevState: PlaceOrderState, formData: FormData
 
   const { data: variants, error: varErr } = await supabase
     .from("product_variants")
-    .select("product_id, size, color_name, available, stock_qty")
+    .select("product_id, size, available, stock_qty")
     .in("product_id", productIds);
   if (varErr || !variants) {
     return { error: "Could not verify stock. Please try again." };
   }
-  const variantKey = (productId: number, size: string, color: string) => `${productId}::${size}::${color}`;
-  const variantByKey = new Map(variants.map((v) => [variantKey(v.product_id, v.size, v.color_name), v]));
+  const variantKey = (productId: number, size: string) => `${productId}::${size}`;
+  const variantByKey = new Map(variants.map((v) => [variantKey(v.product_id, v.size), v]));
 
   for (const row of cartRows) {
-    const variant = variantByKey.get(variantKey(row.product_id, row.size, row.color_name));
+    const variant = variantByKey.get(variantKey(row.product_id, row.size));
     const product = productById.get(row.product_id);
     if (!variant || !variant.available || variant.stock_qty < row.quantity) {
       return { error: `${product?.name ?? "An item"} (size ${row.size}) is no longer in stock in that quantity.` };
@@ -119,7 +125,6 @@ export async function placeOrder(_prevState: PlaceOrderState, formData: FormData
       product_id: row.product_id,
       product_name: product.name,
       size: row.size,
-      color_name: row.color_name,
       unit_price: product.price,
       qty: row.quantity
     };
@@ -134,18 +139,17 @@ export async function placeOrder(_prevState: PlaceOrderState, formData: FormData
   // directly via the REST API) — only this trusted server-side path can.
   const admin = createAdminClient();
   for (const row of cartRows) {
-    const variant = variantByKey.get(variantKey(row.product_id, row.size, row.color_name))!;
+    const variant = variantByKey.get(variantKey(row.product_id, row.size))!;
     await admin
       .from("product_variants")
       .update({ stock_qty: variant.stock_qty - row.quantity })
       .eq("product_id", row.product_id)
-      .eq("size", row.size)
-      .eq("color_name", row.color_name);
+      .eq("size", row.size);
   }
 
   await supabase.from("cart_items").delete().eq("user_id", userId);
 
-  const provider = getProvider("dummy");
+  const provider = getProvider("cod");
   const { redirectUrl } = await provider.createPayment({
     supabase,
     orderId: order.id,

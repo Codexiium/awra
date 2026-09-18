@@ -13,29 +13,20 @@ async function getCurrentUserId(): Promise<string | null> {
   return data.user?.id ?? null;
 }
 
-export async function syncUpsertCartItem(productId: string, size: string, colorName: string, quantity: number) {
+export async function syncUpsertCartItem(productId: string, size: string, quantity: number) {
   const userId = await getCurrentUserId();
   if (!userId) return;
   const supabase = createClient();
   await supabase
     .from("cart_items")
-    .upsert(
-      { user_id: userId, product_id: Number(productId), size, color_name: colorName, quantity },
-      { onConflict: "user_id,product_id,size,color_name" }
-    );
+    .upsert({ user_id: userId, product_id: Number(productId), size, quantity }, { onConflict: "user_id,product_id,size" });
 }
 
-export async function syncRemoveCartItem(productId: string, size: string, colorName: string) {
+export async function syncRemoveCartItem(productId: string, size: string) {
   const userId = await getCurrentUserId();
   if (!userId) return;
   const supabase = createClient();
-  await supabase
-    .from("cart_items")
-    .delete()
-    .eq("user_id", userId)
-    .eq("product_id", Number(productId))
-    .eq("size", size)
-    .eq("color_name", colorName);
+  await supabase.from("cart_items").delete().eq("user_id", userId).eq("product_id", Number(productId)).eq("size", size);
 }
 
 export async function syncClearCart() {

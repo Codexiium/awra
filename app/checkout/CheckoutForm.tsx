@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import { Lock, CreditCard } from "lucide-react";
+import { Lock } from "lucide-react";
 import ProductImage from "../components/ui/ProductImage";
 import { useCartStore } from "../store/useCartStore";
 import { formatPrice } from "@/lib/format";
@@ -52,9 +52,6 @@ export default function CheckoutForm({
     postalCode: initialPostalCode,
     country: initialCountry
   });
-  const [cardNumber, setCardNumber] = useState("4532 8920 1928 4812");
-  const [cardExpiry, setCardExpiry] = useState("08/28");
-  const [cardCvc, setCardCvc] = useState("894");
   const [errors, setErrors] = useState<FieldErrors>({});
 
   const [state, formAction, isSubmitting] = useActionState(placeOrder, initialPlaceOrderState);
@@ -248,49 +245,36 @@ export default function CheckoutForm({
             </div>
           </div>
 
-          {/* 4. Payment Method UI (Mock) */}
+          {/* 4. Payment Method */}
           <div className="p-6 bg-[#0f0f0f] border border-white/10 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-2">
-              <h3 className="font-mono text-xs uppercase tracking-widest text-zinc-200 font-bold">
-                4. PAYMENT METHOD (DUMMY GATEWAY)
-              </h3>
-              <span className="text-[10px] font-mono text-amber-400">NO REAL CARD CHARGED</span>
-            </div>
-            <p className="text-[11px] font-mono text-zinc-500">
-              Card details are cosmetic only — after placing your order you&apos;ll confirm payment on a dummy gateway screen.
-            </p>
+            <h3 className="font-mono text-xs uppercase tracking-widest text-zinc-200 font-bold border-b border-white/10 pb-2">
+              4. PAYMENT METHOD
+            </h3>
 
-            <div>
-              <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">CARD NUMBER</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
-                  className="clay-input w-full px-4 py-3 text-xs font-mono text-white tracking-widest"
-                />
-                <CreditCard className="w-4 h-4 text-zinc-500 absolute right-4 top-3.5" />
-              </div>
-            </div>
+            <input type="hidden" name="paymentMethod" value="cod" />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">EXPIRY (MM/YY)</label>
-                <input
-                  type="text"
-                  value={cardExpiry}
-                  onChange={(e) => setCardExpiry(e.target.value)}
-                  className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">CVC SECURITY CODE</label>
-                <input
-                  type="password"
-                  value={cardCvc}
-                  onChange={(e) => setCardCvc(e.target.value)}
-                  className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
-                />
+            <div className="space-y-3 font-mono text-xs">
+              <label className="flex items-center justify-between p-4 border border-white/40 bg-[#141414] cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <input type="radio" name="paymentMethodDisplay" checked readOnly className="accent-white" />
+                  <div>
+                    <span className="font-bold text-white block">CASH ON DELIVERY (COD)</span>
+                    <span className="text-[10px] text-zinc-400">PAY IN CASH WHEN YOUR ORDER ARRIVES</span>
+                  </div>
+                </div>
+              </label>
+
+              <div className="flex items-center justify-between p-4 border border-white/10 bg-[#0d0d0d] opacity-50">
+                <div className="flex items-center gap-3">
+                  <input type="radio" name="paymentMethodDisplay" disabled className="accent-white" />
+                  <div>
+                    <span className="font-bold text-zinc-400 block">ONLINE PAYMENT</span>
+                    <span className="text-[10px] text-zinc-500">CARD / UPI / NETBANKING</span>
+                  </div>
+                </div>
+                <span className="px-2 py-1 bg-amber-950/60 border border-amber-500/30 text-amber-400 text-[10px] uppercase font-bold">
+                  COMING SOON
+                </span>
               </div>
             </div>
           </div>
@@ -305,7 +289,7 @@ export default function CheckoutForm({
               <span>PLACING ORDER...</span>
             ) : (
               <>
-                <Lock className="w-4 h-4" /> CONFIRM &amp; PLACE ORDER — {formatPrice(grandTotal)}
+                <Lock className="w-4 h-4" /> PLACE COD ORDER — {formatPrice(grandTotal)}
               </>
             )}
           </button>

@@ -114,7 +114,7 @@ export default function FullCartPage() {
                   <button
                     type="button"
                     onClick={() =>
-                      updateQuantity(item.product.id, item.selectedSize, item.selectedColor, item.quantity - 1)
+                      updateQuantity(item.product.id, item.selectedSize, item.quantity - 1)
                     }
                     className="p-2 text-zinc-400 hover:text-white"
                   >
@@ -124,7 +124,7 @@ export default function FullCartPage() {
                   <button
                     type="button"
                     onClick={() =>
-                      updateQuantity(item.product.id, item.selectedSize, item.selectedColor, item.quantity + 1)
+                      updateQuantity(item.product.id, item.selectedSize, item.quantity + 1)
                     }
                     className="p-2 text-zinc-400 hover:text-white"
                   >
@@ -138,7 +138,7 @@ export default function FullCartPage() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => removeItem(item.product.id, item.selectedSize, item.selectedColor)}
+                    onClick={() => removeItem(item.product.id, item.selectedSize)}
                     className="text-xs font-mono text-zinc-500 hover:text-red-400 inline-flex items-center gap-1 mt-1"
                   >
                     <Trash2 className="w-3 h-3" /> REMOVE

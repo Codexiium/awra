@@ -24,11 +24,14 @@ export default async function OrderSuccessPage(props: PageProps<"/checkout/succe
   const supabase = await createClient();
   const { data: order } = await supabase
     .from("orders")
-    .select("order_number, total, payment_status, shipping_address, created_at")
+    .select("order_number, total, payment_status, shipping_address, created_at, payments(id)")
     .eq("order_number", orderNumber)
     .maybeSingle();
 
-  if (!order || order.payment_status !== "paid") notFound();
+  // COD orders are confirmed on placement (payment happens at delivery, so
+  // payment_status stays "pending") — a payments row existing at all proves
+  // this order actually went through placeOrder rather than being guessed.
+  if (!order || (order.payments?.length ?? 0) === 0) notFound();
 
   const address = order.shipping_address as unknown as ShippingAddress;
 
@@ -60,8 +63,8 @@ export default async function OrderSuccessPage(props: PageProps<"/checkout/succe
           <span className="text-white font-bold">{formatPrice(order.total)}</span>
         </div>
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
-          <span className="text-zinc-500">PAYMENT STATUS:</span>
-          <span className="text-emerald-400 font-bold">PAID</span>
+          <span className="text-zinc-500">PAYMENT METHOD:</span>
+          <span className="text-amber-400 font-bold">CASH ON DELIVERY</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-zinc-500">SHIPPING DESTINATION:</span>

@@ -36,9 +36,8 @@ export default function ProductCard({ product }: ProductCardProps) {
     if (isOutOfStock) return;
     // Default to first available size
     const availableSizeObj = product.sizes?.find((s) => s.available) || { size: "M", available: true };
-    const defaultColor = product.colors?.[0]?.name || "Obsidian Black";
 
-    addItem(product, availableSizeObj.size, defaultColor, 1);
+    addItem(product, availableSizeObj.size, 1);
     setAddedQuick(true);
     setTimeout(() => setAddedQuick(false), 1800);
   };

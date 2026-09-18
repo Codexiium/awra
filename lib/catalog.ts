@@ -8,7 +8,7 @@ const PRODUCT_SELECT = `
   id, slug, name, price, compare_at_price, description, availability, badges,
   rating, review_count, material, fit, care,
   product_images ( role, storage_path, alt, aspect_ratio, sort_order ),
-  product_variants ( size, color_name, color_hex, available )
+  product_variants ( size, available )
 `;
 
 interface ProductImageRow {
@@ -21,8 +21,6 @@ interface ProductImageRow {
 
 interface ProductVariantRow {
   size: string;
-  color_name: string;
-  color_hex: string;
   available: boolean;
 }
 
@@ -57,13 +55,11 @@ export function mapProductRow(row: ProductRow): Product {
   const secondary = row.product_images.find((i) => i.role === "secondary");
   const gallery = row.product_images.filter((i) => i.role === "gallery").sort((a, b) => a.sort_order - b.sort_order);
 
-  // Mock/seed data models sizes and colors as independent facets rather than
-  // per-combination availability — collapse the variant rows back into that shape.
+  // One variant row per size (no color dimension) — still de-dupe defensively
+  // in case a future seed/import produces duplicate size rows for a product.
   const sizeMap = new Map<string, boolean>();
-  const colorMap = new Map<string, string>();
   for (const v of row.product_variants) {
     sizeMap.set(v.size, (sizeMap.get(v.size) ?? false) || v.available);
-    colorMap.set(v.color_name, v.color_hex);
   }
 
   return {
@@ -79,7 +75,6 @@ export function mapProductRow(row: ProductRow): Product {
       gallery: gallery.map((g) => mapImage(g))
     },
     sizes: [...sizeMap.entries()].map(([size, available]) => ({ size, available })),
-    colors: [...colorMap.entries()].map(([name, hex]) => ({ name, hex })),
     availability: row.availability,
     badges: row.badges as Product["badges"],
     rating: Number(row.rating),
@@ -90,7 +85,6 @@ export function mapProductRow(row: ProductRow): Product {
 
 export interface ShopFilters {
   size?: string;
-  color?: string;
   sort?: "newest" | "price-low" | "price-high" | "best-selling" | "alphabetical";
   limit?: number;
 }
@@ -100,14 +94,15 @@ export async function getProducts(filters: ShopFilters = {}): Promise<Product[]>
 
   let query = supabase.from("products").select(PRODUCT_SELECT);
 
-  // Size/color filters resolve matching product ids from product_variants first,
-  // rather than an inner-joined embed, so the product_variants array returned for
-  // display still contains every size/color for that product (not just the match).
-  if (filters.size || filters.color) {
-    let variantQuery = supabase.from("product_variants").select("product_id");
-    if (filters.size) variantQuery = variantQuery.eq("size", filters.size).eq("available", true);
-    if (filters.color) variantQuery = variantQuery.eq("color_name", filters.color);
-    const { data: variantRows } = await variantQuery;
+  // Size filter resolves matching product ids from product_variants first,
+  // rather than an inner-joined embed, so the product_variants array returned
+  // for display still contains every size for that product (not just the match).
+  if (filters.size) {
+    const { data: variantRows } = await supabase
+      .from("product_variants")
+      .select("product_id")
+      .eq("size", filters.size)
+      .eq("available", true);
     const ids = [...new Set((variantRows ?? []).map((r) => r.product_id as number))];
     if (ids.length === 0) return [];
     query = query.in("id", ids);
@@ -187,11 +182,9 @@ export async function getAllProductsForNav(): Promise<Product[]> {
   return (data ?? []).map(mapProductRow);
 }
 
-export async function getDistinctSizesAndColors(): Promise<{ sizes: string[]; colors: string[] }> {
+export async function getDistinctSizes(): Promise<string[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("product_variants").select("size, color_name");
+  const { data, error } = await supabase.from("product_variants").select("size");
   if (error) throw error;
-  const sizes = [...new Set((data ?? []).map((v) => v.size))];
-  const colors = [...new Set((data ?? []).map((v) => v.color_name))];
-  return { sizes, colors };
+  return [...new Set((data ?? []).map((v) => v.size))];
 }

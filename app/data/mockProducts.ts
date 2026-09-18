@@ -22,10 +22,6 @@ export const mockProducts: Product[] = [
       { size: "L", available: true },
       { size: "XL", available: false }
     ],
-    colors: [
-      { name: "Obsidian Black", hex: "#080808" },
-      { name: "Ash Charcoal", hex: "#262626" }
-    ],
     availability: "in_stock",
     badges: ["new", "limited"],
     rating: 4.9,
@@ -57,10 +53,6 @@ export const mockProducts: Product[] = [
       { size: "L", available: true },
       { size: "XL", available: true }
     ],
-    colors: [
-      { name: "Pitch Black", hex: "#080808" },
-      { name: "Blood Crimson", hex: "#3A0B10" }
-    ],
     availability: "in_stock",
     badges: ["new"],
     rating: 5.0,
@@ -90,10 +82,6 @@ export const mockProducts: Product[] = [
       { size: "32", available: true },
       { size: "34", available: true },
       { size: "36", available: false }
-    ],
-    colors: [
-      { name: "Obsidian Black", hex: "#080808" },
-      { name: "Oxidized Silver", hex: "#4A4D52" }
     ],
     availability: "low_stock",
     badges: ["sale"],
@@ -125,10 +113,6 @@ export const mockProducts: Product[] = [
       { size: "L", available: true },
       { size: "XL", available: true },
       { size: "XXL", available: false }
-    ],
-    colors: [
-      { name: "Matte Black", hex: "#121212" },
-      { name: "Polished Black Leather", hex: "#050505" }
     ],
     availability: "in_stock",
     badges: ["limited"],

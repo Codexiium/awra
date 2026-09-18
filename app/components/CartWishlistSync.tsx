@@ -43,10 +43,9 @@ export default function CartWishlistSync() {
           user_id: user.id,
           product_id: Number(item.product.id),
           size: item.selectedSize,
-          color_name: item.selectedColor,
           quantity: item.quantity
         }));
-        await supabase.from("cart_items").upsert(rows, { onConflict: "user_id,product_id,size,color_name" });
+        await supabase.from("cart_items").upsert(rows, { onConflict: "user_id,product_id,size" });
       }
 
       if (wishlist.length > 0) {

@@ -34,20 +34,15 @@ async function main() {
       .single();
     if (prodErr) throw prodErr;
 
-    // Mock data models sizes and colors as independent facets (no per-combination
-    // availability/stock). Seed the full size x color cross product, inheriting
-    // `available` from the size entry and assigning a synthetic stock_qty so
-    // checkout stock-decrement has something real to work against.
-    const variantRows = p.sizes.flatMap((s) =>
-      p.colors.map((c) => ({
-        product_id: productRow!.id,
-        size: s.size,
-        color_name: c.name,
-        color_hex: c.hex,
-        available: s.available,
-        stock_qty: s.available ? 25 : 0
-      }))
-    );
+    // A product has only sizes now (no color variants) — one row per size,
+    // with a synthetic stock_qty so checkout stock-decrement has something
+    // real to work against.
+    const variantRows = p.sizes.map((s) => ({
+      product_id: productRow!.id,
+      size: s.size,
+      available: s.available,
+      stock_qty: s.available ? 50 : 0
+    }));
     if (variantRows.length > 0) {
       const { error: varErr } = await supabase.from("product_variants").insert(variantRows);
       if (varErr) throw varErr;

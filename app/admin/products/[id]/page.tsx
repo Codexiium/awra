@@ -17,7 +17,7 @@ export default async function EditProductPage(props: PageProps<"/admin/products/
   const { data: product } = await admin
     .from("products")
     .select(
-      "id, slug, name, price, compare_at_price, description, availability, badges, material, fit, care, rating, review_count, product_images(id, role, storage_path, alt), product_variants(id, size, color_name, color_hex, stock_qty, available)"
+      "id, slug, name, price, compare_at_price, description, availability, badges, material, fit, care, rating, review_count, product_images(id, role, storage_path, alt), product_variants(id, size, stock_qty, available)"
     )
     .eq("id", productId)
     .maybeSingle();

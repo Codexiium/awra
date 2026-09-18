@@ -261,25 +261,21 @@ export async function createVariant(_prevState: VariantActionState, formData: Fo
   await requireAdmin();
   const productId = Number(formData.get("productId"));
   const size = String(formData.get("size") || "").trim();
-  const colorName = String(formData.get("colorName") || "").trim();
-  const colorHex = String(formData.get("colorHex") || "").trim();
   const stockQty = Number(formData.get("stockQty") || 0);
   const available = formData.get("available") === "on";
 
-  if (!productId || !size || !colorName || !colorHex) {
-    return { error: "Size, color name, and color hex are required." };
+  if (!productId || !size) {
+    return { error: "Size is required." };
   }
   if (!Number.isFinite(stockQty) || stockQty < 0) {
     return { error: "Stock quantity must be zero or more." };
   }
 
   const admin = createAdminClient();
-  const { error } = await admin
-    .from("product_variants")
-    .insert({ product_id: productId, size, color_name: colorName, color_hex: colorHex, stock_qty: stockQty, available });
+  const { error } = await admin.from("product_variants").insert({ product_id: productId, size, stock_qty: stockQty, available });
 
   if (error) {
-    return { error: error.code === "23505" ? "That size/color combination already exists." : "Could not add variant." };
+    return { error: error.code === "23505" ? "That size already exists." : "Could not add variant." };
   }
 
   revalidatePath(`/admin/products/${productId}`);
