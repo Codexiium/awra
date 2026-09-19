@@ -32,8 +32,8 @@ export default function OrderStatusForm({
       </h3>
 
       <div>
-        <label className="block text-[11px] text-zinc-400 uppercase mb-1">STATUS</label>
-        <select name="status" defaultValue={currentStatus} className="clay-input w-full px-4 py-3 text-xs text-white">
+        <label htmlFor="order-status" className="block text-[11px] text-zinc-400 uppercase mb-1">STATUS</label>
+        <select id="order-status" name="status" defaultValue={currentStatus} className="clay-input w-full px-4 py-3 text-xs text-white">
           {ORDER_STATUSES.map((status) => (
             <option key={status} value={status}>
               {orderStatusLabel(status)}
@@ -44,8 +44,9 @@ export default function OrderStatusForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">CARRIER</label>
+          <label htmlFor="order-trackingCarrier" className="block text-[11px] text-zinc-400 uppercase mb-1">CARRIER</label>
           <input
+            id="order-trackingCarrier"
             name="trackingCarrier"
             defaultValue={trackingCarrier ?? ""}
             placeholder="e.g. Bluedart"
@@ -53,8 +54,9 @@ export default function OrderStatusForm({
           />
         </div>
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">TRACKING NUMBER</label>
+          <label htmlFor="order-trackingNumber" className="block text-[11px] text-zinc-400 uppercase mb-1">TRACKING NUMBER</label>
           <input
+            id="order-trackingNumber"
             name="trackingNumber"
             defaultValue={trackingNumber ?? ""}
             className="clay-input w-full px-4 py-3 text-xs text-white"
@@ -63,8 +65,9 @@ export default function OrderStatusForm({
       </div>
 
       <div>
-        <label className="block text-[11px] text-zinc-400 uppercase mb-1">TRACKING URL (OPTIONAL)</label>
+        <label htmlFor="order-trackingUrl" className="block text-[11px] text-zinc-400 uppercase mb-1">TRACKING URL (OPTIONAL)</label>
         <input
+          id="order-trackingUrl"
           name="trackingUrl"
           defaultValue={trackingUrl ?? ""}
           className="clay-input w-full px-4 py-3 text-xs text-white"

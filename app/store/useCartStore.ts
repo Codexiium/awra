@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { CartItem, Product, PromoResult } from "@/app/types";
 import { syncUpsertCartItem, syncRemoveCartItem, syncClearCart } from "@/lib/supabase/sync";
 import { applyPromoCode as applyPromoCodeAction } from "@/lib/promo/actions";
+import { FREE_SHIPPING_THRESHOLD_INR, FLAT_SHIPPING_COST_INR } from "@/lib/pricing/shipping";
 
 interface CartState {
   cart: CartItem[];
@@ -92,7 +93,7 @@ export const useCartStore = create<CartState>()(
       },
 
       applyPromoCode: async (code) => {
-        const result = await applyPromoCodeAction(code);
+        const result = await applyPromoCodeAction(code, get().getSubtotal());
         if (result.success) {
           set({
             promoCode: code.trim().toUpperCase(),
@@ -124,7 +125,7 @@ export const useCartStore = create<CartState>()(
       getShippingCost: () => {
         const subtotal = get().getSubtotal();
         if (subtotal === 0) return 0;
-        return subtotal >= 250 ? 0 : 25;
+        return subtotal >= FREE_SHIPPING_THRESHOLD_INR ? 0 : FLAT_SHIPPING_COST_INR;
       },
 
       getGstAmount: () => {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Truck } from "lucide-react";
+import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatPrice } from "@/lib/format";
 import { orderStatusLabel, orderStatusPillClass } from "@/lib/orders/status";
@@ -17,6 +18,7 @@ interface ShippingAddressSnapshot {
 }
 
 export default async function AdminOrderDetailPage(props: PageProps<"/admin/orders/[orderNumber]">) {
+  await requireAdmin();
   const { orderNumber } = await props.params;
   const admin = createAdminClient();
 

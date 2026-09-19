@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useId } from "react";
 import type { AddressActionState } from "@/lib/account/actions";
 
 interface AddressFormProps {
@@ -33,6 +33,10 @@ export default function AddressForm({
   onDone
 }: AddressFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
+  // AddressForm renders more than once at a time (an "add" form plus a
+  // per-item "edit" form in AddressList), so ids need to be unique per
+  // instance rather than static strings.
+  const uid = useId();
 
   useEffect(() => {
     if (state.success) onDone();
@@ -44,22 +48,24 @@ export default function AddressForm({
 
       <div className="grid grid-cols-2 gap-4 items-end">
         <div>
-          <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">LABEL</label>
+          <label htmlFor={`${uid}-label`} className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">LABEL</label>
           <input
+            id={`${uid}-label`}
             name="label"
             defaultValue={initialLabel}
             className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
           />
         </div>
-        <label className="flex items-center gap-2 pb-3 text-[11px] font-mono text-zinc-400 uppercase cursor-pointer">
-          <input type="checkbox" name="isDefault" defaultChecked={initialIsDefault} className="accent-white" />
+        <label htmlFor={`${uid}-isDefault`} className="flex items-center gap-2 pb-3 text-[11px] font-mono text-zinc-400 uppercase cursor-pointer">
+          <input id={`${uid}-isDefault`} type="checkbox" name="isDefault" defaultChecked={initialIsDefault} className="accent-white" />
           SET AS DEFAULT
         </label>
       </div>
 
       <div>
-        <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">STREET ADDRESS</label>
+        <label htmlFor={`${uid}-street`} className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">STREET ADDRESS</label>
         <input
+          id={`${uid}-street`}
           name="street"
           defaultValue={initialStreet}
           required
@@ -69,8 +75,9 @@ export default function AddressForm({
 
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">CITY</label>
+          <label htmlFor={`${uid}-city`} className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">CITY</label>
           <input
+            id={`${uid}-city`}
             name="city"
             defaultValue={initialCity}
             required
@@ -78,16 +85,18 @@ export default function AddressForm({
           />
         </div>
         <div>
-          <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">STATE</label>
+          <label htmlFor={`${uid}-state`} className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">STATE</label>
           <input
+            id={`${uid}-state`}
             name="state"
             defaultValue={initialRegion}
             className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
           />
         </div>
         <div>
-          <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">POSTAL CODE</label>
+          <label htmlFor={`${uid}-postalCode`} className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">POSTAL CODE</label>
           <input
+            id={`${uid}-postalCode`}
             name="postalCode"
             defaultValue={initialPostalCode}
             required
@@ -97,8 +106,9 @@ export default function AddressForm({
       </div>
 
       <div>
-        <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">COUNTRY</label>
+        <label htmlFor={`${uid}-country`} className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">COUNTRY</label>
         <input
+          id={`${uid}-country`}
           name="country"
           defaultValue={initialCountry}
           required

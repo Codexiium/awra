@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Returns & Exchange",
+  description: "ARWA's returns and exchange policy."
+};
 
 export default function ReturnsExchangePage() {
   return (

@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "About",
+  description: "About ARWA — dark gothic streetwear."
+};
 
 export default function AboutPage() {
   return (

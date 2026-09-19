@@ -7,6 +7,7 @@ import ProductImage from "../components/ui/ProductImage";
 import { useCartStore } from "../store/useCartStore";
 import { formatPrice } from "@/lib/format";
 import { placeOrder, type PlaceOrderState } from "@/lib/checkout/actions";
+import { validateCheckoutFields, type CheckoutFormFields } from "@/lib/checkout/validateAddress";
 
 interface CheckoutFormProps {
   initialEmail: string;
@@ -16,19 +17,8 @@ interface CheckoutFormProps {
   initialCity: string;
   initialPostalCode: string;
   initialCountry: string;
+  initialPhone: string;
 }
-
-interface ContactShippingData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  country: string;
-}
-
-type FieldErrors = Partial<Record<keyof ContactShippingData, string>>;
 
 const initialPlaceOrderState: PlaceOrderState = { error: null };
 
@@ -39,20 +29,22 @@ export default function CheckoutForm({
   initialAddress,
   initialCity,
   initialPostalCode,
-  initialCountry
+  initialCountry,
+  initialPhone
 }: CheckoutFormProps) {
   const { cart, promoCode, getSubtotal, getDiscountAmount, getShippingCost, getGstAmount, getGrandTotal } = useCartStore();
 
-  const [formData, setFormData] = useState<ContactShippingData>({
+  const [formData, setFormData] = useState<CheckoutFormFields>({
     email: initialEmail,
     firstName: initialFirstName,
     lastName: initialLastName,
     address: initialAddress,
     city: initialCity,
     postalCode: initialPostalCode,
-    country: initialCountry
+    country: initialCountry,
+    phone: initialPhone
   });
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [errors, setErrors] = useState<ReturnType<typeof validateCheckoutFields>>({});
 
   const [state, formAction, isSubmitting] = useActionState(placeOrder, initialPlaceOrderState);
 
@@ -67,20 +59,15 @@ export default function CheckoutForm({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateForm = () => {
-    const errs: FieldErrors = {};
-    if (!formData.email.includes("@")) errs.email = "Valid email is required";
-    if (!formData.firstName.trim()) errs.firstName = "First name is required";
-    if (!formData.lastName.trim()) errs.lastName = "Last name is required";
-    if (!formData.address.trim()) errs.address = "Shipping address is required";
-    if (!formData.city.trim()) errs.city = "City is required";
-    if (!formData.postalCode.trim()) errs.postalCode = "Postal code is required";
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
-
+  // Mirrors the server-side check in lib/checkout/actions.ts exactly (both
+  // call validateCheckoutFields) — previously these were two independent,
+  // hand-written checks that had drifted (the server never required
+  // lastName/country even though the client did), so a request that skipped
+  // the browser entirely could create an order missing them.
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (!validateForm()) {
+    const fieldErrors = validateCheckoutFields(formData);
+    setErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length > 0) {
       e.preventDefault();
       window.scrollTo({ top: 200, behavior: "smooth" });
     }
@@ -138,8 +125,9 @@ export default function CheckoutForm({
               1. CONTACT INFORMATION
             </h3>
             <div>
-              <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">EMAIL ADDRESS</label>
+              <label htmlFor="checkout-email" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">EMAIL ADDRESS</label>
               <input
+                id="checkout-email"
                 type="email"
                 name="email"
                 value={formData.email}
@@ -147,6 +135,19 @@ export default function CheckoutForm({
                 className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
               />
               {errors.email && <p className="text-[10px] font-mono text-red-400 mt-1">{errors.email}</p>}
+            </div>
+            <div>
+              <label htmlFor="checkout-phone" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">PHONE NUMBER</label>
+              <input
+                id="checkout-phone"
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="REQUIRED FOR COD DELIVERY"
+                className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
+              />
+              {errors.phone && <p className="text-[10px] font-mono text-red-400 mt-1">{errors.phone}</p>}
             </div>
           </div>
 
@@ -157,8 +158,9 @@ export default function CheckoutForm({
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">FIRST NAME</label>
+                <label htmlFor="checkout-firstName" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">FIRST NAME</label>
                 <input
+                  id="checkout-firstName"
                   type="text"
                   name="firstName"
                   value={formData.firstName}
@@ -168,8 +170,9 @@ export default function CheckoutForm({
                 {errors.firstName && <p className="text-[10px] font-mono text-red-400 mt-1">{errors.firstName}</p>}
               </div>
               <div>
-                <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">LAST NAME</label>
+                <label htmlFor="checkout-lastName" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">LAST NAME</label>
                 <input
+                  id="checkout-lastName"
                   type="text"
                   name="lastName"
                   value={formData.lastName}
@@ -181,8 +184,9 @@ export default function CheckoutForm({
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">STREET ADDRESS</label>
+              <label htmlFor="checkout-address" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">STREET ADDRESS</label>
               <input
+                id="checkout-address"
                 type="text"
                 name="address"
                 value={formData.address}
@@ -194,34 +198,40 @@ export default function CheckoutForm({
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">CITY</label>
+                <label htmlFor="checkout-city" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">CITY</label>
                 <input
+                  id="checkout-city"
                   type="text"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
                   className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
                 />
+                {errors.city && <p className="text-[10px] font-mono text-red-400 mt-1">{errors.city}</p>}
               </div>
               <div>
-                <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">POSTAL CODE</label>
+                <label htmlFor="checkout-postalCode" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">POSTAL CODE</label>
                 <input
+                  id="checkout-postalCode"
                   type="text"
                   name="postalCode"
                   value={formData.postalCode}
                   onChange={handleChange}
                   className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
                 />
+                {errors.postalCode && <p className="text-[10px] font-mono text-red-400 mt-1">{errors.postalCode}</p>}
               </div>
               <div>
-                <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">COUNTRY</label>
+                <label htmlFor="checkout-country" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">COUNTRY</label>
                 <input
+                  id="checkout-country"
                   type="text"
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
                   className="clay-input w-full px-4 py-3 text-xs font-mono text-white"
                 />
+                {errors.country && <p className="text-[10px] font-mono text-red-400 mt-1">{errors.country}</p>}
               </div>
             </div>
           </div>

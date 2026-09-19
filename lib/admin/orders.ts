@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isOrderStatus } from "@/lib/orders/status";
+import { sendShippingNotificationEmail } from "@/lib/email/send";
+
+interface ShippingAddressSnapshot {
+  email?: string;
+}
 
 export interface UpdateOrderStatusState {
   error: string | null;
@@ -35,12 +40,13 @@ export async function updateOrderStatus(
 
   const { data: existing } = await admin
     .from("orders")
-    .select("shipped_at, delivered_at")
+    .select("id, status, shipped_at, delivered_at, shipping_address")
     .eq("order_number", orderNumber)
     .single();
   if (!existing) {
     return { error: "Order not found.", success: false };
   }
+  const wasAlreadyShipped = !!existing.shipped_at;
 
   const updates: Record<string, unknown> = {
     status,
@@ -55,7 +61,47 @@ export async function updateOrderStatus(
 
   const { error } = await admin.from("orders").update(updates).eq("order_number", orderNumber);
   if (error) {
+    console.error("updateOrderStatus error", error);
     return { error: "Could not update the order. Please try again.", success: false };
+  }
+
+  // Cancelling never returned stock to inventory before — every cancellation
+  // permanently shrank sellable stock until someone noticed and corrected it
+  // by hand in the variant editor. Only restore on the transition *into*
+  // cancelled (guarded by existing.status !== "cancelled" above via the
+  // isOrderStatus/status checks having already run) so re-saving an already-
+  // cancelled order can't double-restore.
+  if (status === "cancelled" && existing.status !== "cancelled") {
+    const { data: items, error: itemsError } = await admin
+      .from("order_items")
+      .select("product_id, size, qty")
+      .eq("order_id", existing.id);
+    if (itemsError) {
+      console.error("updateOrderStatus restock read error", itemsError);
+    } else {
+      for (const item of items ?? []) {
+        if (item.product_id == null) continue;
+        const { error: restockError } = await admin.rpc("increment_stock", {
+          p_product_id: item.product_id,
+          p_size: item.size,
+          p_qty: item.qty
+        });
+        if (restockError) console.error("updateOrderStatus restock error", restockError);
+      }
+    }
+  }
+
+  if (status === "shipped" && !wasAlreadyShipped) {
+    const address = existing.shipping_address as unknown as ShippingAddressSnapshot | null;
+    if (address?.email) {
+      await sendShippingNotificationEmail({
+        to: address.email,
+        orderNumber,
+        trackingCarrier,
+        trackingNumber,
+        trackingUrl: trackingUrl || null
+      });
+    }
   }
 
   revalidatePath("/admin/orders");

@@ -15,7 +15,8 @@ export async function toggleAdmin(formData: FormData) {
   if (!makeAdmin && userId === currentAdmin.userId) return;
 
   const admin = createAdminClient();
-  await admin.from("profiles").update({ is_admin: makeAdmin }).eq("id", userId);
+  const { error } = await admin.from("profiles").update({ is_admin: makeAdmin }).eq("id", userId);
+  if (error) console.error("toggleAdmin error", error);
 
   revalidatePath("/admin/users");
 }

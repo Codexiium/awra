@@ -18,7 +18,7 @@ export default async function NewArrivalsPage() {
 
       <div className="pb-8 border-b border-white/10 mb-8">
         <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest block mb-1">
-          DROP 04 RELEASE
+          LATEST RELEASE
         </span>
         <h1 className="font-gothic text-4xl sm:text-5xl text-white tracking-widest uppercase">
           NEW ARRIVALS

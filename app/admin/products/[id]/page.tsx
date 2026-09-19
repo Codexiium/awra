@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateProduct } from "@/lib/admin/products";
 import ProductForm from "../ProductForm";
@@ -9,6 +10,7 @@ import VariantManager from "../VariantManager";
 import DeleteProductButton from "../DeleteProductButton";
 
 export default async function EditProductPage(props: PageProps<"/admin/products/[id]">) {
+  await requireAdmin();
   const { id } = await props.params;
   const productId = Number(id);
   if (!productId) notFound();

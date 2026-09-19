@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatPrice } from "@/lib/format";
 import { orderStatusLabel, orderStatusPillClass } from "@/lib/orders/status";
@@ -11,6 +12,7 @@ interface ShippingAddressSnapshot {
 }
 
 export default async function AdminOrdersPage(props: PageProps<"/admin/orders">) {
+  await requireAdmin();
   const sp = await props.searchParams;
   const { page, from, to } = parsePage(sp);
 

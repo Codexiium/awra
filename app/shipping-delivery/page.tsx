@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
+
+export const metadata: Metadata = {
+  title: "Shipping & Delivery",
+  description: "ARWA's shipping and delivery policy."
+};
 
 export default function ShippingDeliveryPage() {
   return (

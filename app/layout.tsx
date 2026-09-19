@@ -15,13 +15,21 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+// This app-wide default is what every route shows until it sets its own
+// metadata/generateMetadata — see app/product/[slug]/page.tsx and the static
+// `metadata` exports on /shop, /about, /contact, and the policy pages for
+// the per-page overrides.
 export const metadata: Metadata = {
-  title: "ARWA — Premium Dark Gothic High-Fashion E-Commerce",
-  description: "Official ARWA dark streetwear catalog featuring floor-length trenches, heavy distressed hoodies, spiky archival metal hardware, and cyber gothic silhouettes.",
-  keywords: ["ARWA", "Dark Streetwear", "Gothic Fashion", "High-Fashion E-Commerce", "Sterling Silver"],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  title: {
+    default: "ARWA — Dark Gothic Streetwear",
+    template: "%s | ARWA"
+  },
+  description: "Oversized cotton printed gothic streetwear tees, Cash on Delivery across India.",
+  keywords: ["ARWA", "Dark Streetwear", "Gothic Fashion", "Oversized T-Shirts", "Cotton Printed Tees"],
   openGraph: {
-    title: "ARWA — Dark Gothic High-Fashion E-Commerce",
-    description: "Architectural heavyweight silhouettes and archival silver hardware.",
+    title: "ARWA — Dark Gothic Streetwear",
+    description: "Oversized cotton printed gothic streetwear tees, Cash on Delivery across India.",
     images: ["/logo.png"]
   }
 };

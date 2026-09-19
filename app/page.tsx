@@ -28,7 +28,7 @@ export default async function Home() {
           <HeroEntrance>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.04] border border-white/15 text-zinc-300 text-[11px] font-mono tracking-widest uppercase mb-6 rounded-none">
               <span className="text-zinc-400 font-gothic">✦</span>
-              <span>DROP 04 — WINTER ARCHIVE 2026</span>
+              <span>THE CURRENT EDIT — LIVE NOW</span>
             </div>
 
             <h1 className="font-gothic text-4xl sm:text-6xl lg:text-7xl tracking-tight text-white leading-[1.05] mb-6">
@@ -64,7 +64,7 @@ export default async function Home() {
             </div>
 
             <a
-              href="tel:7439104842"
+              href="tel:+917439104842"
               className="mt-6 text-xs font-mono text-zinc-400 hover:text-white transition-colors inline-flex items-center gap-1.5"
             >
               📞 CALL / WHATSAPP: +91 74391 04842

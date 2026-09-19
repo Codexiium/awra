@@ -175,10 +175,18 @@ export async function getProductsByIds(ids: number[]): Promise<Product[]> {
   return (data ?? []).map(mapProductRow);
 }
 
+// Unlike every other function here, this one degrades to an empty list on
+// error instead of throwing — it's called unconditionally from the root
+// layout on every single request (search overlay), so a transient Supabase
+// error here would previously take down every page in the app, including
+// purely static marketing pages that don't need this data at all.
 export async function getAllProductsForNav(): Promise<Product[]> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("products").select(PRODUCT_SELECT).returns<ProductRow[]>();
-  if (error) throw error;
+  if (error) {
+    console.error("getAllProductsForNav error", error);
+    return [];
+  }
   return (data ?? []).map(mapProductRow);
 }
 

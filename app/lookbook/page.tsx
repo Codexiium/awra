@@ -29,7 +29,7 @@ export default function LookbookPage() {
           EDITORIAL CAMPAIGN
         </span>
         <h1 className="font-gothic text-4xl sm:text-6xl text-white tracking-widest uppercase">
-          DROP 04 LOOKBOOK
+          THE LOOKBOOK
         </h1>
         <p className="text-xs text-zinc-400 font-mono mt-2">
           ARCHIVAL CAMPAIGN IMAGERY

@@ -301,33 +301,17 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               <div className="flex items-center justify-between pb-4 border-b border-white/10">
                 <div>
                   <h4 className="font-gothic text-xl text-white">CLIENT REVIEWS ({product.reviewCount})</h4>
-                  <p className="text-xs font-mono text-zinc-400">RATED 4.9/5 BY ARCHIVAL COLLECTORS</p>
+                  <p className="text-xs font-mono text-zinc-400">RATED {product.rating.toFixed(1)}/5</p>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="p-4 bg-[#121212] border border-white/5 space-y-1">
-                  <div className="flex items-center justify-between text-xs font-mono text-zinc-400">
-                    <span className="text-white font-bold">VANCE K.</span>
-                    <span>VERIFIED BUYER</span>
-                  </div>
-                  <div className="flex text-amber-400 text-xs">★★★★★</div>
-                  <p className="text-xs text-zinc-300">
-                    &quot;The weight of the cotton canvas is unmatched. Floor length drape feels extremely high-fashion.&quot;
-                  </p>
-                </div>
-
-                <div className="p-4 bg-[#121212] border border-white/5 space-y-1">
-                  <div className="flex items-center justify-between text-xs font-mono text-zinc-400">
-                    <span className="text-white font-bold">AURA M.</span>
-                    <span>VERIFIED BUYER</span>
-                  </div>
-                  <div className="flex text-amber-400 text-xs">★★★★★</div>
-                  <p className="text-xs text-zinc-300">
-                    &quot;Silver spiky hardware detail is unreal. Worth every cent.&quot;
-                  </p>
-                </div>
-              </div>
+              {/* Individual written reviews aren't collected yet — the rating
+                  above is real (admin-set until a full review system exists),
+                  but showing fabricated testimonials here would be a false
+                  claim. */}
+              <p className="text-xs font-mono text-zinc-500">
+                Written reviews aren&apos;t available yet for this product.
+              </p>
             </div>
           )}
         </div>

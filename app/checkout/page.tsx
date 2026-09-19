@@ -32,6 +32,7 @@ export default async function CheckoutPage() {
       initialCity={defaultAddress?.city ?? ""}
       initialPostalCode={defaultAddress?.postal_code ?? ""}
       initialCountry={defaultAddress?.country ?? "India"}
+      initialPhone={profile?.phone ?? ""}
     />
   );
 }

@@ -51,8 +51,9 @@ export default function ProductForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">SLUG</label>
+          <label htmlFor="product-slug" className="block text-[11px] text-zinc-400 uppercase mb-1">SLUG</label>
           <input
+            id="product-slug"
             name="slug"
             defaultValue={initialSlug}
             required
@@ -60,8 +61,9 @@ export default function ProductForm({
           />
         </div>
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">NAME</label>
+          <label htmlFor="product-name" className="block text-[11px] text-zinc-400 uppercase mb-1">NAME</label>
           <input
+            id="product-name"
             name="name"
             defaultValue={initialName}
             required
@@ -72,8 +74,9 @@ export default function ProductForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">PRICE (NOW)</label>
+          <label htmlFor="product-price" className="block text-[11px] text-zinc-400 uppercase mb-1">PRICE (NOW)</label>
           <input
+            id="product-price"
             name="price"
             type="number"
             step="0.01"
@@ -84,8 +87,9 @@ export default function ProductForm({
           />
         </div>
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">COMPARE-AT PRICE (ACTUAL, OPTIONAL)</label>
+          <label htmlFor="product-compareAtPrice" className="block text-[11px] text-zinc-400 uppercase mb-1">COMPARE-AT PRICE (ACTUAL, OPTIONAL)</label>
           <input
+            id="product-compareAtPrice"
             name="compareAtPrice"
             type="number"
             step="0.01"
@@ -97,8 +101,9 @@ export default function ProductForm({
       </div>
 
       <div>
-        <label className="block text-[11px] text-zinc-400 uppercase mb-1">DESCRIPTION</label>
+        <label htmlFor="product-description" className="block text-[11px] text-zinc-400 uppercase mb-1">DESCRIPTION</label>
         <textarea
+          id="product-description"
           name="description"
           defaultValue={initialDescription}
           rows={3}
@@ -108,8 +113,9 @@ export default function ProductForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">AVAILABILITY</label>
+          <label htmlFor="product-availability" className="block text-[11px] text-zinc-400 uppercase mb-1">AVAILABILITY</label>
           <select
+            id="product-availability"
             name="availability"
             defaultValue={initialAvailability}
             className="clay-input w-full px-4 py-3 text-xs text-white"
@@ -119,12 +125,13 @@ export default function ProductForm({
             <option value="out_of_stock">OUT OF STOCK</option>
           </select>
         </div>
-        <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">BADGES</label>
+        <fieldset>
+          <legend className="block text-[11px] text-zinc-400 uppercase mb-1">BADGES</legend>
           <div className="flex gap-4 pt-3">
             {BADGE_OPTIONS.map((badge) => (
-              <label key={badge} className="flex items-center gap-1.5 text-zinc-300 uppercase cursor-pointer">
+              <label key={badge} htmlFor={`product-badge-${badge}`} className="flex items-center gap-1.5 text-zinc-300 uppercase cursor-pointer">
                 <input
+                  id={`product-badge-${badge}`}
                   type="checkbox"
                   name="badges"
                   value={badge}
@@ -135,34 +142,36 @@ export default function ProductForm({
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">MATERIAL</label>
+          <label htmlFor="product-material" className="block text-[11px] text-zinc-400 uppercase mb-1">MATERIAL</label>
           <input
+            id="product-material"
             name="material"
             defaultValue={initialMaterial}
             className="clay-input w-full px-4 py-3 text-xs text-white"
           />
         </div>
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">FIT</label>
-          <input name="fit" defaultValue={initialFit} className="clay-input w-full px-4 py-3 text-xs text-white" />
+          <label htmlFor="product-fit" className="block text-[11px] text-zinc-400 uppercase mb-1">FIT</label>
+          <input id="product-fit" name="fit" defaultValue={initialFit} className="clay-input w-full px-4 py-3 text-xs text-white" />
         </div>
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">CARE</label>
-          <input name="care" defaultValue={initialCare} className="clay-input w-full px-4 py-3 text-xs text-white" />
+          <label htmlFor="product-care" className="block text-[11px] text-zinc-400 uppercase mb-1">CARE</label>
+          <input id="product-care" name="care" defaultValue={initialCare} className="clay-input w-full px-4 py-3 text-xs text-white" />
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">
+          <label htmlFor="product-rating" className="block text-[11px] text-zinc-400 uppercase mb-1">
             RATING (0-5, MANUALLY SET — NOT YET COMPUTED FROM REVIEWS)
           </label>
           <input
+            id="product-rating"
             name="rating"
             type="number"
             step="0.1"
@@ -173,8 +182,9 @@ export default function ProductForm({
           />
         </div>
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">REVIEW COUNT (MANUALLY SET)</label>
+          <label htmlFor="product-reviewCount" className="block text-[11px] text-zinc-400 uppercase mb-1">REVIEW COUNT (MANUALLY SET)</label>
           <input
+            id="product-reviewCount"
             name="reviewCount"
             type="number"
             step="1"

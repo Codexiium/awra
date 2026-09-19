@@ -82,6 +82,7 @@ export async function createProduct(_prevState: ProductFormState, formData: Form
     .single();
 
   if (error || !data) {
+    console.error("createProduct error", error);
     return { error: error?.code === "23505" ? "That slug is already in use." : "Could not create product." };
   }
 
@@ -120,6 +121,7 @@ export async function updateProduct(_prevState: ProductFormState, formData: Form
     .eq("id", id);
 
   if (error) {
+    console.error("updateProduct error", error);
     return { error: error.code === "23505" ? "That slug is already in use." : "Could not update product." };
   }
 
@@ -143,10 +145,12 @@ export async function deleteProduct(formData: FormData) {
   // bucket accumulates orphans.
   const { data: images } = await admin.from("product_images").select("storage_path").eq("product_id", id);
   if (images && images.length > 0) {
-    await admin.storage.from("product-images").remove(images.map((i) => i.storage_path));
+    const { error: removeError } = await admin.storage.from("product-images").remove(images.map((i) => i.storage_path));
+    if (removeError) console.error("deleteProduct storage remove error", removeError);
   }
 
-  await admin.from("products").delete().eq("id", id);
+  const { error: deleteError } = await admin.from("products").delete().eq("id", id);
+  if (deleteError) console.error("deleteProduct error", deleteError);
 
   revalidatePath("/admin/products");
   revalidatePath("/shop");
@@ -187,7 +191,10 @@ export async function upsertProductImage(_prevState: ImageActionState, formData:
   const { error: uploadErr } = await admin.storage.from("product-images").upload(path, file, {
     contentType: file.type || undefined
   });
-  if (uploadErr) return { error: "Could not upload image." };
+  if (uploadErr) {
+    console.error("upsertProductImage upload error", uploadErr);
+    return { error: "Could not upload image." };
+  }
 
   if (role === "primary" || role === "secondary") {
     // product_images_primary_unique / ..._secondary_unique are partial
@@ -206,12 +213,18 @@ export async function upsertProductImage(_prevState: ImageActionState, formData:
         .from("product_images")
         .update({ storage_path: path, alt, aspect_ratio: aspectRatio })
         .eq("id", existing.id);
-      if (error) return { error: "Could not save image." };
+      if (error) {
+        console.error("upsertProductImage update error", error);
+        return { error: "Could not save image." };
+      }
     } else {
       const { error } = await admin
         .from("product_images")
         .insert({ product_id: productId, role, sort_order: 0, storage_path: path, alt, aspect_ratio: aspectRatio });
-      if (error) return { error: "Could not save image." };
+      if (error) {
+        console.error("upsertProductImage insert error", error);
+        return { error: "Could not save image." };
+      }
     }
   } else {
     const { data: lastGallery } = await admin
@@ -226,7 +239,10 @@ export async function upsertProductImage(_prevState: ImageActionState, formData:
     const { error } = await admin
       .from("product_images")
       .insert({ product_id: productId, role: "gallery", sort_order: nextSortOrder, storage_path: path, alt, aspect_ratio: aspectRatio });
-    if (error) return { error: "Could not save image." };
+    if (error) {
+      console.error("upsertProductImage gallery insert error", error);
+      return { error: "Could not save image." };
+    }
   }
 
   revalidatePath(`/admin/products/${productId}`);
@@ -243,8 +259,10 @@ export async function deleteProductImage(formData: FormData) {
   const admin = createAdminClient();
   const { data: image } = await admin.from("product_images").select("storage_path").eq("id", imageId).maybeSingle();
   if (image) {
-    await admin.storage.from("product-images").remove([image.storage_path]);
-    await admin.from("product_images").delete().eq("id", imageId);
+    const { error: removeError } = await admin.storage.from("product-images").remove([image.storage_path]);
+    if (removeError) console.error("deleteProductImage storage remove error", removeError);
+    const { error: deleteError } = await admin.from("product_images").delete().eq("id", imageId);
+    if (deleteError) console.error("deleteProductImage error", deleteError);
   }
 
   revalidatePath(`/admin/products/${productId}`);
@@ -275,6 +293,7 @@ export async function createVariant(_prevState: VariantActionState, formData: Fo
   const { error } = await admin.from("product_variants").insert({ product_id: productId, size, stock_qty: stockQty, available });
 
   if (error) {
+    console.error("createVariant error", error);
     return { error: error.code === "23505" ? "That size already exists." : "Could not add variant." };
   }
 
@@ -296,7 +315,10 @@ export async function updateVariant(_prevState: VariantActionState, formData: Fo
 
   const admin = createAdminClient();
   const { error } = await admin.from("product_variants").update({ stock_qty: stockQty, available }).eq("id", id);
-  if (error) return { error: "Could not update variant." };
+  if (error) {
+    console.error("updateVariant error", error);
+    return { error: "Could not update variant." };
+  }
 
   revalidatePath(`/admin/products/${productId}`);
   revalidatePath("/shop");
@@ -310,7 +332,8 @@ export async function deleteVariant(formData: FormData) {
   if (!id) return;
 
   const admin = createAdminClient();
-  await admin.from("product_variants").delete().eq("id", id);
+  const { error } = await admin.from("product_variants").delete().eq("id", id);
+  if (error) console.error("deleteVariant error", error);
 
   revalidatePath(`/admin/products/${productId}`);
   revalidatePath("/shop");

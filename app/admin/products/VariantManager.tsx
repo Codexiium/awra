@@ -77,12 +77,19 @@ function AddVariantForm({ productId }: { productId: number }) {
       <input type="hidden" name="productId" value={productId} />
 
       <div>
-        <label className="block text-[10px] text-zinc-500 uppercase mb-1">SIZE</label>
-        <input name="size" required className="clay-input w-20 px-2 py-1.5 text-xs text-white" />
+        <label htmlFor={`variant-new-size-${productId}`} className="block text-[10px] text-zinc-500 uppercase mb-1">SIZE</label>
+        <input id={`variant-new-size-${productId}`} name="size" required className="clay-input w-20 px-2 py-1.5 text-xs text-white" />
       </div>
       <div>
-        <label className="block text-[10px] text-zinc-500 uppercase mb-1">STOCK</label>
-        <input name="stockQty" type="number" min="0" defaultValue={0} className="clay-input w-20 px-2 py-1.5 text-xs text-white" />
+        <label htmlFor={`variant-new-stock-${productId}`} className="block text-[10px] text-zinc-500 uppercase mb-1">STOCK</label>
+        <input
+          id={`variant-new-stock-${productId}`}
+          name="stockQty"
+          type="number"
+          min="0"
+          defaultValue={0}
+          className="clay-input w-20 px-2 py-1.5 text-xs text-white"
+        />
       </div>
       <label className="flex items-center gap-1.5 text-zinc-400 cursor-pointer pb-2">
         <input type="checkbox" name="available" defaultChecked className="accent-white" />

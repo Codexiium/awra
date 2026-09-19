@@ -1,25 +1,73 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { publicEnv } from "@/lib/env";
+
+const SUPABASE_HOSTNAME = new URL(publicEnv.NEXT_PUBLIC_SUPABASE_URL).hostname;
+
+// Security response headers (SEC-7): the app previously shipped none of
+// these — no CSP, no clickjacking protection on /checkout, no MIME-sniffing
+// guard. script-src uses a per-request nonce (generated below) rather than
+// 'unsafe-inline'; Next's App Router automatically applies the nonce to the
+// inline scripts it renders once it's present in both the request header
+// (x-nonce, read via headers() in Server Components) and the response's CSP
+// header, which is exactly what this function does.
+function buildSecurityHeaders(nonce: string) {
+  const csp = `
+    default-src 'self';
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: https://${SUPABASE_HOSTNAME};
+    font-src 'self';
+    connect-src 'self' https://${SUPABASE_HOSTNAME};
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  `
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  return {
+    "Content-Security-Policy": csp,
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+    "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload"
+  };
+}
 
 export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const securityHeaders = buildSecurityHeaders(nonce);
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+  for (const [key, value] of Object.entries(securityHeaders)) {
+    requestHeaders.set(key, value);
+  }
+
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
+  for (const [key, value] of Object.entries(securityHeaders)) {
+    response.headers.set(key, value);
+  }
+
+  const supabase = createServerClient(publicEnv.NEXT_PUBLIC_SUPABASE_URL, publicEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        response = NextResponse.next({ request: { headers: requestHeaders } });
+        for (const [key, value] of Object.entries(securityHeaders)) {
+          response.headers.set(key, value);
         }
+        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
       }
     }
-  );
+  });
 
   // getClaims() validates the JWT (and refreshes it via setAll above if needed) —
   // never trust a locally-stored session alone for authorization.
@@ -36,7 +84,11 @@ export async function updateSession(request: NextRequest) {
     url.pathname = "/login";
     url.search = "";
     url.searchParams.set("next", next);
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    for (const [key, value] of Object.entries(securityHeaders)) {
+      redirectResponse.headers.set(key, value);
+    }
+    return redirectResponse;
   }
 
   return response;

@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { X, RefreshCw } from "lucide-react";
 import ProductCard from "../components/ui/ProductCard";
 import SortSelect from "./SortSelect";
 import MobileFilterDrawer from "./MobileFilterDrawer";
 import { getProducts, getDistinctSizes } from "@/lib/catalog";
+
+export const metadata: Metadata = {
+  title: "Shop",
+  description: "Shop the full ARWA catalog — oversized cotton printed gothic streetwear tees."
+};
 
 type SortOption = "newest" | "price-low" | "price-high" | "best-selling" | "alphabetical";
 

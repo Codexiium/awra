@@ -117,7 +117,7 @@ export default function Footer() {
             <h5 className="font-mono text-zinc-200 uppercase tracking-widest mb-4">CONTACT</h5>
             <ul className="space-y-2.5 font-sans">
               <li>
-                <a href="tel:7439104842" className="hover:text-white transition-colors">
+                <a href="tel:+917439104842" className="hover:text-white transition-colors">
                   +91 74391 04842
                 </a>
               </li>

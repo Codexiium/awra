@@ -43,8 +43,9 @@ export default function RegisterPage() {
 
       <form action={formAction} className="p-8 bg-[#0f0f0f] border border-white/15 space-y-6">
         <div>
-          <label className="block text-xs font-mono text-zinc-400 uppercase mb-2">FULL NAME</label>
+          <label htmlFor="register-name" className="block text-xs font-mono text-zinc-400 uppercase mb-2">FULL NAME</label>
           <input
+            id="register-name"
             type="text"
             name="name"
             required
@@ -54,8 +55,9 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-xs font-mono text-zinc-400 uppercase mb-2">EMAIL ADDRESS</label>
+          <label htmlFor="register-email" className="block text-xs font-mono text-zinc-400 uppercase mb-2">EMAIL ADDRESS</label>
           <input
+            id="register-email"
             type="email"
             name="email"
             required
@@ -65,8 +67,9 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-xs font-mono text-zinc-400 uppercase mb-2">PASSWORD</label>
+          <label htmlFor="register-password" className="block text-xs font-mono text-zinc-400 uppercase mb-2">PASSWORD</label>
           <input
+            id="register-password"
             type="password"
             name="password"
             required

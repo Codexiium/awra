@@ -23,8 +23,9 @@ export default function SettingsForm({ initialName, initialEmail, initialPhone }
 
       <form action={formAction} className="p-6 bg-[#0f0f0f] border border-white/10 space-y-4">
         <div>
-          <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">FULL NAME</label>
+          <label htmlFor="settings-name" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">FULL NAME</label>
           <input
+            id="settings-name"
             type="text"
             name="name"
             defaultValue={initialName}
@@ -33,8 +34,9 @@ export default function SettingsForm({ initialName, initialEmail, initialPhone }
         </div>
 
         <div>
-          <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">EMAIL ADDRESS</label>
+          <label htmlFor="settings-email" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">EMAIL ADDRESS</label>
           <input
+            id="settings-email"
             type="email"
             name="email"
             defaultValue={initialEmail}
@@ -43,8 +45,9 @@ export default function SettingsForm({ initialName, initialEmail, initialPhone }
         </div>
 
         <div>
-          <label className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">PHONE NUMBER</label>
+          <label htmlFor="settings-phone" className="block text-[11px] font-mono text-zinc-400 uppercase mb-1">PHONE NUMBER</label>
           <input
+            id="settings-phone"
             type="text"
             name="phone"
             defaultValue={initialPhone}

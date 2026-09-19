@@ -20,7 +20,19 @@ interface ProductImagesSectionProps {
 
 const initialState: ImageActionState = { error: null };
 
-function UploadSlot({ productId, slug, role, current }: { productId: number; slug: string; role: "primary" | "secondary" | "gallery"; current?: ImageRow }) {
+function UploadSlot({
+  productId,
+  slug,
+  role,
+  current,
+  inputId
+}: {
+  productId: number;
+  slug: string;
+  role: "primary" | "secondary" | "gallery";
+  current?: ImageRow;
+  inputId: string;
+}) {
   const [state, formAction, pending] = useActionState(upsertProductImage, initialState);
 
   return (
@@ -40,6 +52,7 @@ function UploadSlot({ productId, slug, role, current }: { productId: number; slu
       )}
 
       <input
+        id={inputId}
         type="file"
         name="image"
         accept="image/*"
@@ -70,17 +83,17 @@ export default function ProductImagesSection({ productId, slug, images }: Produc
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">PRIMARY (REQUIRED)</label>
-          <UploadSlot productId={productId} slug={slug} role="primary" current={primary} />
+          <label htmlFor={`image-primary-${productId}`} className="block text-[11px] text-zinc-400 uppercase mb-1">PRIMARY (REQUIRED)</label>
+          <UploadSlot productId={productId} slug={slug} role="primary" current={primary} inputId={`image-primary-${productId}`} />
         </div>
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">SECONDARY (REQUIRED)</label>
-          <UploadSlot productId={productId} slug={slug} role="secondary" current={secondary} />
+          <label htmlFor={`image-secondary-${productId}`} className="block text-[11px] text-zinc-400 uppercase mb-1">SECONDARY (REQUIRED)</label>
+          <UploadSlot productId={productId} slug={slug} role="secondary" current={secondary} inputId={`image-secondary-${productId}`} />
         </div>
       </div>
 
       <div>
-        <label className="block text-[11px] text-zinc-400 uppercase mb-1">GALLERY (OPTIONAL)</label>
+        <label htmlFor={`image-gallery-${productId}`} className="block text-[11px] text-zinc-400 uppercase mb-1">GALLERY (OPTIONAL)</label>
         <div className="grid grid-cols-3 gap-3 mb-3">
           {gallery.map((img) => (
             <div key={img.id} className="relative">
@@ -103,7 +116,7 @@ export default function ProductImagesSection({ productId, slug, images }: Produc
             </div>
           ))}
         </div>
-        <UploadSlot productId={productId} slug={slug} role="gallery" />
+        <UploadSlot productId={productId} slug={slug} role="gallery" inputId={`image-gallery-${productId}`} />
       </div>
     </div>
   );

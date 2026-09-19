@@ -10,7 +10,7 @@ export default async function AdminPromoCodesPage() {
   const admin = createAdminClient();
   const { data: codes } = await admin
     .from("promo_codes")
-    .select("id, code, discount_percent, active, expires_at")
+    .select("id, code, discount_percent, active, expires_at, starts_at, max_uses, times_used, min_order_total")
     .order("created_at", { ascending: false });
 
   return (
@@ -24,6 +24,7 @@ export default async function AdminPromoCodesPage() {
       <div className="space-y-2 font-mono text-xs">
         {(codes ?? []).map((c) => {
           const expired = c.expires_at ? new Date(c.expires_at) < new Date() : false;
+          const usedUp = c.max_uses != null ? c.times_used >= c.max_uses : false;
           return (
             <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[#0f0f0f] border border-white/10">
               <div>
@@ -31,7 +32,11 @@ export default async function AdminPromoCodesPage() {
                 <span className="text-[10px] text-zinc-500">
                   {c.discount_percent}% OFF
                   {c.expires_at && ` · EXPIRES ${new Date(c.expires_at).toLocaleDateString()}`}
+                  {c.starts_at && ` · STARTS ${new Date(c.starts_at).toLocaleDateString()}`}
+                  {c.min_order_total != null && ` · MIN ₹${c.min_order_total}/-`}
+                  {c.max_uses != null && ` · ${c.times_used}/${c.max_uses} USED`}
                   {expired && " (EXPIRED)"}
+                  {usedUp && " (USED UP)"}
                 </span>
               </div>
 

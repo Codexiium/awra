@@ -14,23 +14,46 @@ export default function PromoCodeForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">CODE</label>
-          <input name="code" required className="clay-input w-full px-4 py-3 text-xs text-white uppercase" />
+          <label htmlFor="promo-code" className="block text-[11px] text-zinc-400 uppercase mb-1">CODE</label>
+          <input id="promo-code" name="code" required className="clay-input w-full px-4 py-3 text-xs text-white uppercase" />
         </div>
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">DISCOUNT %</label>
+          <label htmlFor="promo-discount" className="block text-[11px] text-zinc-400 uppercase mb-1">DISCOUNT % (MAX 50)</label>
           <input
+            id="promo-discount"
             name="discountPercent"
             type="number"
             min="1"
-            max="100"
+            max="50"
             required
             className="clay-input w-full px-4 py-3 text-xs text-white"
           />
         </div>
         <div>
-          <label className="block text-[11px] text-zinc-400 uppercase mb-1">EXPIRES (OPTIONAL)</label>
-          <input name="expiresAt" type="date" className="clay-input w-full px-4 py-3 text-xs text-white" />
+          <label htmlFor="promo-expires" className="block text-[11px] text-zinc-400 uppercase mb-1">EXPIRES (OPTIONAL)</label>
+          <input id="promo-expires" name="expiresAt" type="date" className="clay-input w-full px-4 py-3 text-xs text-white" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label htmlFor="promo-starts" className="block text-[11px] text-zinc-400 uppercase mb-1">STARTS (OPTIONAL)</label>
+          <input id="promo-starts" name="startsAt" type="date" className="clay-input w-full px-4 py-3 text-xs text-white" />
+        </div>
+        <div>
+          <label htmlFor="promo-max-uses" className="block text-[11px] text-zinc-400 uppercase mb-1">MAX USES (OPTIONAL)</label>
+          <input id="promo-max-uses" name="maxUses" type="number" min="1" className="clay-input w-full px-4 py-3 text-xs text-white" />
+        </div>
+        <div>
+          <label htmlFor="promo-min-order" className="block text-[11px] text-zinc-400 uppercase mb-1">MIN ORDER ₹ (OPTIONAL)</label>
+          <input
+            id="promo-min-order"
+            name="minOrderTotal"
+            type="number"
+            min="0"
+            step="0.01"
+            className="clay-input w-full px-4 py-3 text-xs text-white"
+          />
         </div>
       </div>
 

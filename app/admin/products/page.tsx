@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatPrice } from "@/lib/format";
 import { getPublicImageUrl } from "@/lib/storage";
@@ -14,6 +15,7 @@ interface ProductVariantRow {
 }
 
 export default async function AdminProductsPage(props: PageProps<"/admin/products">) {
+  await requireAdmin();
   const sp = await props.searchParams;
   const { page, from, to } = parsePage(sp);
 

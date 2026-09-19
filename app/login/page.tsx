@@ -27,8 +27,9 @@ export default function LoginPage() {
       <form action={formAction} className="p-8 bg-[#0f0f0f] border border-white/15 space-y-6">
         <input type="hidden" name="next" value={next} />
         <div>
-          <label className="block text-xs font-mono text-zinc-400 uppercase mb-2">EMAIL ADDRESS</label>
+          <label htmlFor="login-email" className="block text-xs font-mono text-zinc-400 uppercase mb-2">EMAIL ADDRESS</label>
           <input
+            id="login-email"
             type="email"
             name="email"
             required
@@ -37,8 +38,14 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <label className="block text-xs font-mono text-zinc-400 uppercase mb-2">PASSWORD</label>
+          <div className="flex items-center justify-between mb-2">
+            <label htmlFor="login-password" className="block text-xs font-mono text-zinc-400 uppercase">PASSWORD</label>
+            <Link href="/forgot-password" className="text-[10px] font-mono text-zinc-500 hover:text-white underline">
+              FORGOT PASSWORD?
+            </Link>
+          </div>
           <input
+            id="login-password"
             type="password"
             name="password"
             required
