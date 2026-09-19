@@ -12,9 +12,18 @@ const SUPABASE_HOSTNAME = new URL(publicEnv.NEXT_PUBLIC_SUPABASE_URL).hostname;
 // (x-nonce, read via headers() in Server Components) and the response's CSP
 // header, which is exactly what this function does.
 function buildSecurityHeaders(nonce: string) {
+  // Next's dev server (Fast Refresh, Turbopack HMR) uses eval() for
+  // debugging/hot-reload plumbing — React explicitly never uses eval() in
+  // production, so 'unsafe-eval' is only added outside production rather
+  // than weakening the CSP that actually ships.
+  const scriptSrc =
+    process.env.NODE_ENV === "production"
+      ? `'self' 'nonce-${nonce}' 'strict-dynamic'`
+      : `'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`;
+
   const csp = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+    script-src ${scriptSrc};
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https://${SUPABASE_HOSTNAME};
     font-src 'self';

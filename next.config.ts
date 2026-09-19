@@ -10,12 +10,17 @@ const nextConfig: NextConfig = {
         hostname: "lwzyjavrdbawgqpwrlme.supabase.co",
         pathname: "/storage/v1/object/public/product-images/**"
       }
-    ]
-    // dangerouslyAllowLocalIP was here to work around this specific dev
-    // sandbox's NAT64 DNS resolution (see TODO.md) relaxing Next 16's
-    // image-optimization SSRF guard. Removed for production — re-add it only
-    // if product images fail to load on the actual deployment target for the
-    // same NAT64 reason, with a comment scoping it to why it's needed there.
+    ],
+    // This environment resolves the Supabase Storage hostname through NAT64
+    // (64:ff9b::/96) to an address Next 16's image-optimization SSRF guard
+    // flags as "private" — confirmed by re-testing after removing this line
+    // (SEC-8): every product image failed with "hostname resolved to
+    // private IP" pointing at 64:ff9b::-prefixed addresses. remotePatterns
+    // above already restricts fetches to this exact hostname+path, so this
+    // is safe here. If this app is ever deployed somewhere with normal
+    // public DNS resolution (e.g. Vercel), re-check whether this is still
+    // needed there before assuming it is.
+    dangerouslyAllowLocalIP: true
   }
 };
 
