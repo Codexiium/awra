@@ -133,6 +133,25 @@ export async function updateProduct(_prevState: ProductFormState, formData: Form
   return { error: null };
 }
 
+// Only one product can be the homepage hero at a time (enforced by
+// products_is_hero_unique) — unset whichever one currently holds it before
+// setting the new one, same two-sequential-writes shape as
+// lib/account/actions.ts's setDefaultAddress.
+export async function setHeroProduct(formData: FormData) {
+  await requireAdmin();
+  const id = Number(formData.get("id"));
+  if (!id) return;
+
+  const admin = createAdminClient();
+  const { error: unsetError } = await admin.from("products").update({ is_hero: false }).eq("is_hero", true);
+  if (unsetError) console.error("setHeroProduct unset error", unsetError);
+  const { error: setError } = await admin.from("products").update({ is_hero: true }).eq("id", id);
+  if (setError) console.error("setHeroProduct set error", setError);
+
+  revalidatePath("/admin/products");
+  revalidatePath("/");
+}
+
 export async function deleteProduct(formData: FormData) {
   await requireAdmin();
   const id = Number(formData.get("id"));

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import AnnouncementBar from "./components/layout/AnnouncementBar";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import CartDrawer from "./components/layout/CartDrawer";
@@ -43,9 +42,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-[#080808] text-[#f5f5f5] font-sans selection:bg-zinc-700 selection:text-white">
-        {/* Global Announcement Alert Bar */}
-        <AnnouncementBar />
-
         {/* Global Header Navigation */}
         <Header />
 

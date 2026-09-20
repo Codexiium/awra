@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Star } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { setHeroProduct } from "@/lib/admin/products";
 import { formatPrice } from "@/lib/format";
 import { getPublicImageUrl } from "@/lib/storage";
 import { parsePage, Pager } from "@/lib/admin/pagination";
@@ -27,7 +28,7 @@ export default async function AdminProductsPage(props: PageProps<"/admin/product
   } = await admin
     .from("products")
     .select(
-      "id, slug, name, price, compare_at_price, availability, product_images(role, storage_path), product_variants(stock_qty)",
+      "id, slug, name, price, compare_at_price, availability, is_hero, product_images(role, storage_path), product_variants(stock_qty)",
       { count: "exact" }
     )
     .order("created_at", { ascending: false })
@@ -62,30 +63,47 @@ export default async function AdminProductsPage(props: PageProps<"/admin/product
             const totalStock = variants.reduce((sum, v) => sum + v.stock_qty, 0);
 
             return (
-              <Link
+              <div
                 key={p.id}
-                href={`/admin/products/${p.id}`}
                 className="flex items-center gap-4 p-4 bg-[#0f0f0f] border border-white/10 hover:border-white/30 transition-colors"
               >
-                <div className="w-14 h-14 bg-[#181818] border border-white/10 shrink-0 overflow-hidden">
-                  {primary && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={getPublicImageUrl(primary.storage_path)} alt="" className="w-full h-full object-cover" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-white font-bold block truncate">{p.name}</span>
-                  <span className="text-[10px] text-zinc-500">
-                    {p.slug} · {variants.length} VARIANT(S) · {totalStock} IN STOCK
-                  </span>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-white font-bold block">{formatPrice(p.price)}</span>
-                  {p.compare_at_price != null && (
-                    <span className="text-[10px] text-zinc-500 line-through">{formatPrice(p.compare_at_price)}</span>
-                  )}
-                </div>
-              </Link>
+                <Link href={`/admin/products/${p.id}`} className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="w-14 h-14 bg-[#181818] border border-white/10 shrink-0 overflow-hidden">
+                    {primary && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={getPublicImageUrl(primary.storage_path)} alt="" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-white font-bold flex items-center gap-1.5 truncate">
+                      {p.name}
+                      {p.is_hero && <Star className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />}
+                    </span>
+                    <span className="text-[10px] text-zinc-500">
+                      {p.slug} · {variants.length} VARIANT(S) · {totalStock} IN STOCK
+                    </span>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-white font-bold block">{formatPrice(p.price)}</span>
+                    {p.compare_at_price != null && (
+                      <span className="text-[10px] text-zinc-500 line-through">{formatPrice(p.compare_at_price)}</span>
+                    )}
+                  </div>
+                </Link>
+
+                <form action={setHeroProduct}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <button
+                    type="submit"
+                    disabled={p.is_hero}
+                    className={`clay-button-secondary px-3 py-1.5 text-[10px] uppercase whitespace-nowrap disabled:opacity-60 ${
+                      p.is_hero ? "border-amber-500/40 text-amber-300" : ""
+                    }`}
+                  >
+                    {p.is_hero ? "HOMEPAGE HERO" : "SET AS HERO"}
+                  </button>
+                </form>
+              </div>
             );
           })}
         </div>

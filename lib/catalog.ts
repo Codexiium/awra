@@ -141,6 +141,23 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   return data ? mapProductRow(data) : null;
 }
 
+// Admin-selectable via /admin/products (see lib/admin/products.ts's
+// setHeroProduct) — the homepage falls back to the first product from
+// getProducts() if no admin has picked one yet.
+export async function getHeroProduct(): Promise<Product | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select(PRODUCT_SELECT)
+    .eq("is_hero", true)
+    .maybeSingle<ProductRow>();
+  if (error) {
+    console.error("getHeroProduct error", error);
+    return null;
+  }
+  return data ? mapProductRow(data) : null;
+}
+
 export async function getRelatedProducts(excludeSlug: string, limit = 4): Promise<Product[]> {
   const supabase = await createClient();
   const { data, error } = await supabase

@@ -252,6 +252,19 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Custom templates so the confirmation/recovery links point directly at this
+# app's own /auth/confirm route with a token_hash (verified via verifyOtp())
+# instead of Supabase's default {{ .ConfirmationURL }}, which routes through
+# Supabase's own hosted /auth/v1/verify redirect first — a documented source
+# of PKCE exchange failures for SSR apps like this one (see TODO.md).
+[auth.email.template.confirmation]
+subject = "Confirm your ARWA account"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Reset your ARWA password"
+content_path = "./supabase/templates/recovery.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"

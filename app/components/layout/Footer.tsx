@@ -200,7 +200,7 @@ export default function Footer() {
 
         {/* Bottom Rights & Socials */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] font-mono text-zinc-600">
-          <p>© 2026 ARWA ARCHIVE INC. ALL RIGHTS RESERVED.</p>
+          <p>© 2024–2026 ARWA ARCHIVE INC. ALL RIGHTS RESERVED.</p>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-zinc-400 transition-colors">INSTAGRAM</a>
             <a href="#" className="hover:text-zinc-400 transition-colors">DISCORD</a>

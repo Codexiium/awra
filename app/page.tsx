@@ -3,11 +3,14 @@ import { ArrowRight } from "lucide-react";
 import ProductImage from "./components/ui/ProductImage";
 import ProductCard from "./components/ui/ProductCard";
 import HeroEntrance from "./components/home/HeroEntrance";
-import { getProducts } from "@/lib/catalog";
+import { getProducts, getHeroProduct } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 
 export default async function Home() {
-  const allProducts = await getProducts({ sort: "newest" });
+  const [allProducts, heroProduct] = await Promise.all([getProducts({ sort: "newest" }), getHeroProduct()]);
+  // Falls back to the first product until an admin picks one in
+  // /admin/products (see lib/admin/products.ts's setHeroProduct).
+  const heroDisplay = heroProduct ?? allProducts[0];
 
   const featuredProducts = allProducts;
   const bestSellerProducts = [...allProducts].sort((a, b) => b.reviewCount - a.reviewCount);
@@ -75,8 +78,8 @@ export default async function Home() {
           <div className="lg:col-span-5 relative">
             <div className="relative p-2 bg-[#121212] border border-white/15 shadow-2xl">
               <ProductImage
-                src={allProducts[0]?.images?.primary?.src ?? null}
-                alt={allProducts[0]?.name ?? "ARWA Campaign Hero"}
+                src={heroDisplay?.images?.primary?.src ?? null}
+                alt={heroDisplay?.name ?? "ARWA Campaign Hero"}
                 aspectRatio="3:4"
                 gothicSymbol="🕇"
                 className="w-full"
@@ -86,10 +89,10 @@ export default async function Home() {
                   FEATURED GARMENT
                 </p>
                 <p className="text-sm font-semibold text-zinc-100 font-sans">
-                  {allProducts[0]?.name ?? "001"}
+                  {heroDisplay?.name ?? "001"}
                 </p>
                 <p className="text-xs font-mono text-zinc-400 mt-1">
-                  {formatPrice(allProducts[0]?.price ?? 0)} · LIMITED PIECES
+                  {formatPrice(heroDisplay?.price ?? 0)} · LIMITED PIECES
                 </p>
               </div>
             </div>

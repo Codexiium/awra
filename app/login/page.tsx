@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { signIn, type AuthActionState } from "@/lib/supabase/actions";
+import { parseAuthLinkError } from "@/lib/supabase/authLinkError";
 
 const initialState: AuthActionState = { error: null };
 
@@ -12,6 +13,26 @@ export default function LoginPage() {
   const [state, formAction, pending] = useActionState(signIn, initialState);
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/account";
+
+  // A confirmation/recovery link that's expired or already used lands here
+  // either via our own /auth/confirm?error=confirmation_failed, or directly
+  // from Supabase as a #error=...&error_code=...&error_description=... hash
+  // (only readable client-side) — see lib/supabase/authLinkError.ts. Read
+  // once via a lazy useState initializer (not an effect) so the error is
+  // available on the very first client render without a setState-in-effect
+  // cascade; window.location.hash isn't reactive so it never needs to be
+  // re-read after mount.
+  const [linkError] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    const hashError = parseAuthLinkError(new URLSearchParams(window.location.hash.slice(1)));
+    return (hashError ?? parseAuthLinkError(searchParams))?.message ?? null;
+  });
+
+  useEffect(() => {
+    if (linkError) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [linkError]);
 
   return (
     <div className="max-w-md mx-auto px-4 py-20">
@@ -23,6 +44,12 @@ export default function LoginPage() {
           SIGN IN TO ARWA
         </h1>
       </div>
+
+      {linkError && (
+        <p className="text-xs font-mono text-red-400 border border-red-500/30 bg-red-950/30 px-4 py-3 mb-6">
+          {linkError}
+        </p>
+      )}
 
       <form action={formAction} className="p-8 bg-[#0f0f0f] border border-white/15 space-y-6">
         <input type="hidden" name="next" value={next} />
