@@ -55,12 +55,6 @@ export default function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProp
             </div>
 
             <div>
-              <Link href="/lookbook" onClick={onClose} className="block py-2 hover:text-white">
-                LOOKBOOK
-              </Link>
-            </div>
-
-            <div>
               <Link href="/about" onClick={onClose} className="block py-2 hover:text-white">
                 ABOUT
               </Link>

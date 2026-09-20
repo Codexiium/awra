@@ -80,10 +80,6 @@ export default function Header() {
                 NEW ARRIVALS
               </Link>
 
-              <Link href="/lookbook" className="hover:text-white transition-colors">
-                LOOKBOOK
-              </Link>
-
               <Link href="/about" className="hover:text-white transition-colors">
                 ABOUT
               </Link>

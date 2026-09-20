@@ -9,7 +9,6 @@ const STATIC_ROUTES = [
   "/about",
   "/contact",
   "/faq",
-  "/lookbook",
   "/privacy-policy",
   "/terms-conditions",
   "/returns-exchange",

@@ -48,7 +48,7 @@ export default function Footer() {
               ARWA is an archival high-fashion dark streetwear label exploring architectural heavy silhouettes, oxidized hardware, and nocturnal utility. Crafted without compromise.
             </p>
             <div className="flex items-center gap-4 text-xs font-mono tracking-widest text-zinc-500 uppercase">
-              <span>EST. 2024</span>
+              <span>EST. 2026</span>
               <span>·</span>
               <span>LIMITED DROPS ONLY</span>
             </div>
@@ -135,11 +135,6 @@ export default function Footer() {
               <li>
                 <Link href="/about" className="hover:text-white transition-colors">
                   Our Story
-                </Link>
-              </li>
-              <li>
-                <Link href="/lookbook" className="hover:text-white transition-colors">
-                  Gothic Campaign Lookbook
                 </Link>
               </li>
               <li>

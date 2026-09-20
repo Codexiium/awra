@@ -58,12 +58,6 @@ export default async function Home() {
                 <span>🔗 Explore the catalog</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link
-                href="/lookbook"
-                className="clay-button-secondary px-8 py-4 text-xs font-mono uppercase tracking-widest text-center w-full sm:w-auto"
-              >
-                EXPLORE LOOKBOOK
-              </Link>
             </div>
 
             <a
