@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCartStockStatus } from "@/lib/checkout/stockCheck";
 import CheckoutForm from "./CheckoutForm";
 
 export default async function CheckoutPage() {
@@ -10,13 +11,14 @@ export default async function CheckoutPage() {
     redirect("/login?next=/checkout");
   }
 
-  const [{ data: profile }, { data: defaultAddress }] = await Promise.all([
+  const [{ data: profile }, { data: defaultAddress }, stockStatus] = await Promise.all([
     supabase.from("profiles").select("full_name, phone").eq("id", claims.sub).single(),
     supabase
       .from("addresses")
       .select("street, city, state, postal_code, country")
       .eq("is_default", true)
-      .maybeSingle()
+      .maybeSingle(),
+    getCartStockStatus(supabase)
   ]);
 
   const nameParts = (profile?.full_name ?? "").trim().split(/\s+/).filter(Boolean);
@@ -33,6 +35,7 @@ export default async function CheckoutPage() {
       initialPostalCode={defaultAddress?.postal_code ?? ""}
       initialCountry={defaultAddress?.country ?? "India"}
       initialPhone={profile?.phone ?? ""}
+      stockStatus={stockStatus}
     />
   );
 }

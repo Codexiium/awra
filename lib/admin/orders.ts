@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isOrderStatus } from "@/lib/orders/status";
+import { restockOrderItems } from "@/lib/orders/restock";
 import { sendShippingNotificationEmail } from "@/lib/email/send";
 
 interface ShippingAddressSnapshot {
@@ -65,30 +66,11 @@ export async function updateOrderStatus(
     return { error: "Could not update the order. Please try again.", success: false };
   }
 
-  // Cancelling never returned stock to inventory before — every cancellation
-  // permanently shrank sellable stock until someone noticed and corrected it
-  // by hand in the variant editor. Only restore on the transition *into*
-  // cancelled (guarded by existing.status !== "cancelled" above via the
-  // isOrderStatus/status checks having already run) so re-saving an already-
-  // cancelled order can't double-restore.
+  // Only restore on the transition *into* cancelled, guarded by
+  // existing.status !== "cancelled" so re-saving an already-cancelled order
+  // can't double-restore.
   if (status === "cancelled" && existing.status !== "cancelled") {
-    const { data: items, error: itemsError } = await admin
-      .from("order_items")
-      .select("product_id, size, qty")
-      .eq("order_id", existing.id);
-    if (itemsError) {
-      console.error("updateOrderStatus restock read error", itemsError);
-    } else {
-      for (const item of items ?? []) {
-        if (item.product_id == null) continue;
-        const { error: restockError } = await admin.rpc("increment_stock", {
-          p_product_id: item.product_id,
-          p_size: item.size,
-          p_qty: item.qty
-        });
-        if (restockError) console.error("updateOrderStatus restock error", restockError);
-      }
-    }
+    await restockOrderItems(admin, existing.id);
   }
 
   if (status === "shipped" && !wasAlreadyShipped) {
@@ -110,4 +92,31 @@ export async function updateOrderStatus(
   revalidatePath(`/account/orders/${orderNumber}`);
 
   return { error: null, success: true };
+}
+
+// A dedicated, single-click cancel action (distinct from the general status
+// dropdown in OrderStatusForm) so admins have an obvious, explicit way to
+// cancel an order without digging through the status select.
+export async function adminCancelOrder(formData: FormData) {
+  await requireAdmin();
+
+  const orderNumber = String(formData.get("orderNumber") || "").trim();
+  if (!orderNumber) return;
+
+  const admin = createAdminClient();
+  const { data: existing } = await admin.from("orders").select("id, status").eq("order_number", orderNumber).single();
+  if (!existing || existing.status === "cancelled") return;
+
+  const { error } = await admin.from("orders").update({ status: "cancelled" }).eq("order_number", orderNumber);
+  if (error) {
+    console.error("adminCancelOrder error", error);
+    return;
+  }
+
+  await restockOrderItems(admin, existing.id);
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${orderNumber}`);
+  revalidatePath("/account/orders");
+  revalidatePath(`/account/orders/${orderNumber}`);
 }

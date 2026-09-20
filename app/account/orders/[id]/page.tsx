@@ -4,6 +4,7 @@ import { ArrowLeft, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
 import { orderStatusLabel, orderStatusPillClass } from "@/lib/orders/status";
+import CancelOrderSection from "./CancelOrderSection";
 
 export default async function OrderDetailPage(props: PageProps<"/account/orders/[id]">) {
   const { id } = await props.params;
@@ -94,6 +95,8 @@ export default async function OrderDetailPage(props: PageProps<"/account/orders/
             <span>{formatPrice(order.total)}</span>
           </div>
         </div>
+
+        <CancelOrderSection orderNumber={order.order_number} status={order.status} />
       </div>
     </div>
   );

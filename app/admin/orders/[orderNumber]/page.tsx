@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Truck } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { adminCancelOrder } from "@/lib/admin/orders";
 import { formatPrice } from "@/lib/format";
 import { orderStatusLabel, orderStatusPillClass } from "@/lib/orders/status";
 import OrderStatusForm from "./OrderStatusForm";
@@ -48,7 +49,20 @@ export default async function AdminOrderDetailPage(props: PageProps<"/admin/orde
               <h2 className="text-xl text-white font-bold">{order.order_number}</h2>
               <span className="text-zinc-500">ORDERED ON {new Date(order.created_at).toLocaleDateString()}</span>
             </div>
-            <span className={`self-start ${orderStatusPillClass(order.status)}`}>{orderStatusLabel(order.status)}</span>
+            <div className="self-start flex items-center gap-3">
+              <span className={orderStatusPillClass(order.status)}>{orderStatusLabel(order.status)}</span>
+              {order.status !== "cancelled" && order.status !== "delivered" && (
+                <form action={adminCancelOrder}>
+                  <input type="hidden" name="orderNumber" value={order.order_number} />
+                  <button
+                    type="submit"
+                    className="px-2.5 py-1 border border-red-500/40 text-red-300 text-[10px] uppercase font-bold hover:bg-red-950/40"
+                  >
+                    CANCEL ORDER
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
 
           <div>

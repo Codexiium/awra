@@ -8,6 +8,7 @@ import { useCartStore } from "../store/useCartStore";
 import { formatPrice } from "@/lib/format";
 import { placeOrder, type PlaceOrderState } from "@/lib/checkout/actions";
 import { validateCheckoutFields, type CheckoutFormFields } from "@/lib/checkout/validateAddress";
+import type { CartStockLine } from "@/lib/checkout/stockCheck";
 
 interface CheckoutFormProps {
   initialEmail: string;
@@ -18,6 +19,7 @@ interface CheckoutFormProps {
   initialPostalCode: string;
   initialCountry: string;
   initialPhone: string;
+  stockStatus: CartStockLine[];
 }
 
 const initialPlaceOrderState: PlaceOrderState = { error: null };
@@ -30,9 +32,15 @@ export default function CheckoutForm({
   initialCity,
   initialPostalCode,
   initialCountry,
-  initialPhone
+  initialPhone,
+  stockStatus
 }: CheckoutFormProps) {
   const { cart, promoCode, getSubtotal, getDiscountAmount, getShippingCost, getGstAmount, getGrandTotal } = useCartStore();
+
+  // Server-fetched at checkout page load — a better-UX early warning before
+  // place_order() authoritatively re-validates stock at submit time anyway.
+  const stockByKey = new Map(stockStatus.map((s) => [`${s.productId}::${s.size}`, s]));
+  const hasStockIssues = cart.some((item) => !stockByKey.get(`${item.product.id}::${item.selectedSize}`)?.ok);
 
   const [formData, setFormData] = useState<CheckoutFormFields>({
     email: initialEmail,
@@ -289,14 +297,22 @@ export default function CheckoutForm({
             </div>
           </div>
 
+          {hasStockIssues && (
+            <p className="text-xs font-mono text-red-400 border border-red-500/30 bg-red-950/30 px-4 py-3">
+              One or more items in your bag are no longer available in the requested quantity. Update your bag before placing this order.
+            </p>
+          )}
+
           {/* Submit CTA */}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || hasStockIssues}
             className="w-full clay-button-primary py-4 text-xs font-mono uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-60"
           >
             {isSubmitting ? (
               <span>PLACING ORDER...</span>
+            ) : hasStockIssues ? (
+              <span>RESOLVE STOCK ISSUES TO CONTINUE</span>
             ) : (
               <>
                 <Lock className="w-4 h-4" /> PLACE COD ORDER — {formatPrice(grandTotal)}
@@ -314,18 +330,27 @@ export default function CheckoutForm({
 
             {/* Item list */}
             <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
-              {cart.map((item, idx) => (
-                <div key={idx} className="flex gap-3 items-center text-xs font-mono text-zinc-300">
-                  <div className="w-12 h-14 shrink-0 border border-white/10">
-                    <ProductImage src={item.product.images?.primary?.src} alt={item.product.name} aspectRatio="1:1" />
+              {cart.map((item, idx) => {
+                const stock = stockByKey.get(`${item.product.id}::${item.selectedSize}`);
+                const outOfStock = !stock?.ok;
+                return (
+                  <div key={idx} className="flex gap-3 items-center text-xs font-mono text-zinc-300">
+                    <div className="w-12 h-14 shrink-0 border border-white/10">
+                      <ProductImage src={item.product.images?.primary?.src} alt={item.product.name} aspectRatio="1:1" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white line-clamp-1 font-semibold">{item.product.name}</p>
+                      <p className="text-[10px] text-zinc-500">SIZE {item.selectedSize} · QTY {item.quantity}</p>
+                      {outOfStock && (
+                        <p className="text-[10px] text-red-400 font-bold mt-0.5">
+                          {stock && stock.stockQty > 0 ? `ONLY ${stock.stockQty} LEFT` : "OUT OF STOCK"}
+                        </p>
+                      )}
+                    </div>
+                    <span className="font-bold text-white">{formatPrice(item.product.price * item.quantity)}</span>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-white line-clamp-1 font-semibold">{item.product.name}</p>
-                    <p className="text-[10px] text-zinc-500">SIZE {item.selectedSize} · QTY {item.quantity}</p>
-                  </div>
-                  <span className="font-bold text-white">{formatPrice(item.product.price * item.quantity)}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Calculations */}
