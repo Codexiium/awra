@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import SettingsForm from "./SettingsForm";
+import ChangePasswordForm from "./ChangePasswordForm";
 
 export default async function AccountSettingsPage() {
   const supabase = await createClient();
@@ -13,10 +14,13 @@ export default async function AccountSettingsPage() {
     .single();
 
   return (
-    <SettingsForm
-      initialName={profile?.full_name ?? ""}
-      initialEmail={claims?.email ?? ""}
-      initialPhone={profile?.phone ?? ""}
-    />
+    <div className="space-y-12">
+      <SettingsForm
+        initialName={profile?.full_name ?? ""}
+        initialEmail={claims?.email ?? ""}
+        initialPhone={profile?.phone ?? ""}
+      />
+      <ChangePasswordForm />
+    </div>
   );
 }
